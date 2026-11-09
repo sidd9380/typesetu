@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sidd9380.github.io/typesetu/sitemap.xml
