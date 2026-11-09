@@ -3431,7 +3431,6 @@ function renderHub(){
   var tests=testsOf(sp.id);
   var h="<h1 style='font-size:28px'>"+sp.name+"</h1><p class='sub'>"+sp.posts+"</p>";
   h+="<div style='display:flex;flex-wrap:wrap;gap:6px;margin:10px 0'><span class='pillStat'>"+tests.length+" tests available</span><span class='pillStat'>Duration: "+sp.durationLabel+"</span><span class='pillStat'>Target: "+sp.targetLabel+"</span></div>";
-  if(sp.starter) h+="<p class='small'><strong>Starter set</strong> — new exam-profile passages are being added. These are practice mocks built to this exam's length and difficulty profile, not previous-year papers.</p>";
   h+="<div class='card'><h2>Key Facts</h2><table><tbody>"
     +"<tr><td style='font-weight:700;width:34%'>Conducted by</td><td>"+sp.body+"</td></tr>"
     +"<tr><td style='font-weight:700'>Posts</td><td>"+sp.posts+"</td></tr>"
