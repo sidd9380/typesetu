@@ -150,7 +150,8 @@ function alignWordsE(expText,gotText){
     if(i+1<E.length&&E[i+1]===G[j]){ skipped.push({exp:E[i]}); i++; continue; }
     if(j+1<G.length&&G[j+1]===E[i]){ perTyped.push({exp:"",got:G[j],st:"full"}); j++; continue; }
     if(j===G.length-1&&G[j].length<E[i].length&&E[i].indexOf(G[j])===0){ perTyped.push({exp:E[i],got:G[j],st:"ok"}); j++; i++; break; }
-    perTyped.push({exp:E[i],got:G[j],st:classifyPair(E[i],G[j])}); i++; j++;
+    var cpT=classifyPair(E[i],G[j]);
+    perTyped.push({exp:E[i],got:G[j],st:(cpT==="spelling"?"full":(cpT==="ok"?"ok":"half"))}); i++; j++;
   }
   while(j<G.length){ perTyped.push({exp:"",got:G[j],st:"full"}); j++; }
   return {perTyped:perTyped, skipped:skipped};
@@ -238,6 +239,7 @@ function buildExamTelemetry(sp,target,typedText,sc){
 
   var feed=[];
   sc.detail.forEach(function(d){
+    if(d.tail) return;
     if(d.kind==="half") feed.push({exp:d.exp,got:d.got,st:"half"});
     else if(d.kind==="wrong") feed.push({exp:d.exp,got:d.got,st:"full"});
     else if(d.kind==="skipped") feed.push({exp:d.exp,got:"",st:"full"});
