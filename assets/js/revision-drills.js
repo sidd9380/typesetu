@@ -71,7 +71,7 @@ function pmApplyResults(mres,s){
     var attempted= (lastStart[w]!=null&&typedLen>lastStart[w])||(target.length>0&&typedLen>=target.length);
     if(!attempted) return;
     if(bad[w]) revApplyResult(key,false);
-    else if((+s.acc||0)>=98) revApplyResult(key,true);
+    else if((+((s.accChar!=null? s.accChar : s.acc))||0)>=98) revApplyResult(key,true);
   });
 }
 

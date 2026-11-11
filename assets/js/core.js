@@ -500,6 +500,40 @@ function focusCapture(){
 }
 function escapeHtml(s){ return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
+function cmpComparisonHtml(eTokens,gTokens,eStat,gStat,counts,halfCatsApply){
+  counts=counts||{};
+  var hw=halfCatsApply? "Half":"Full";
+  var key=[["spelling","Spelling","Full"],["skipped","Skipped","Full"],["extra","Extra","Full"],["capital","Capitalisation",hw],["punct","Punctuation",hw],["spacing","Spacing",hw]];
+  var chips=key.map(function(k){
+    return "<span class='cmpKey'><span class='cmpDot cw-"+k[0]+"'></span>"+k[1]+" ("+k[2]+")"+(counts[k[0]]!=null?" · "+counts[k[0]]:"")+"</span>";
+  }).join("");
+  function panel(tokens,stat){
+    return tokens.map(function(w,idx){
+      var s=stat&&stat[idx];
+      if(!s||s.st==="ok") return escapeHtml(w);
+      return "<span class='cw-"+s.cat+"'>"+escapeHtml(w)+"</span>";
+    }).join(" ");
+  }
+  return "<div class='cmpKeys'>"+chips+"</div><div class='cmpGrid'>"
+    +"<div class='cmpPanel'><h4>Original Passage</h4><p>"+panel(eTokens,eStat)+"</p></div>"
+    +"<div class='cmpPanel'><h4>Your Typed Passage</h4><p>"+(gTokens.length? panel(gTokens,gStat) : "(nothing typed)")+"</p></div></div>";
+}
+function ringTileHtml(valueText,label,pct,color){
+  pct=Math.max(0,Math.min(100,+pct||0));
+  return "<div class='ringStat'><div class='ringWrap'><svg width='76' height='76' viewBox='0 0 76 76' aria-hidden='true'><circle class='ringBg' cx='38' cy='38' r='32' stroke-width='7' fill='none'/><circle class='ringFg' cx='38' cy='38' r='32' stroke-width='7' fill='none' stroke='"+color+"' stroke-linecap='round' stroke-dasharray='201.06' stroke-dashoffset='201.06' data-pct='"+pct+"'/></svg><div class='ringVal'>"+valueText+"</div></div><div class='l'>"+label+"</div></div>";
+}
+function animateRings(root){
+  if(!root) return;
+  var fgs=root.querySelectorAll(".ringFg"); if(!fgs.length) return;
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    fgs.forEach(function(c){
+      var pct=parseFloat(c.getAttribute("data-pct")||"0")||0;
+      pct=Math.max(0,Math.min(100,pct));
+      c.style.strokeDashoffset=String(201.06*(1-pct/100));
+    });
+  }); });
+}
+
 function classify(exp,got){
   if(exp===" "||got===" ") return "spacing";
   if(/[.,;:!?'"()\/\-]/.test(exp)||/[.,;:!?'"()\/\-]/.test(got)) return "punct";
@@ -592,6 +626,33 @@ function alignWordsHcm(target, typedStr){
     else if(p.kind==="ins"){ mistakes++; incorrectChars+=p.got.length; }
     kept.push(p);
   });
+
+  var collapsed=[], ci2=0, didCollapse=false;
+  while(ci2<kept.length){
+    var a=kept[ci2], b=kept[ci2+1];
+    if(b){
+      if((a.kind==="sub"&&b.kind==="del"&&a.exp+b.exp===a.got)||(a.kind==="del"&&b.kind==="sub"&&a.exp+b.exp===b.got)){
+        var subP=(a.kind==="sub")? a:b;
+        collapsed.push({kind:"spacing", exp:a.exp+" "+b.exp, got:subP.got, ti:a.ti, gi:subP.gi});
+        ci2+=2; didCollapse=true; continue;
+      }
+      if((a.kind==="sub"&&b.kind==="ins"&&a.exp===a.got+b.got)||(a.kind==="ins"&&b.kind==="sub"&&b.exp===a.got+b.got)){
+        var subQ=(a.kind==="sub")? a:b;
+        collapsed.push({kind:"spacing", exp:subQ.exp, got:a.got+" "+b.got, ti:subQ.ti, gi:a.gi});
+        ci2+=2; didCollapse=true; continue;
+      }
+    }
+    collapsed.push(a); ci2++;
+  }
+  if(didCollapse){
+    kept=collapsed; mistakes=0; incorrectChars=0;
+    kept.forEach(function(p){
+      if(p.kind==="sub"){ mistakes++; incorrectChars+=p.got.length-posMatches(p.exp,p.got); }
+      else if(p.kind==="del"){ mistakes++; }
+      else if(p.kind==="ins"){ mistakes++; incorrectChars+=p.got.length; }
+      else if(p.kind==="spacing"){ mistakes++; incorrectChars+=p.got.length; }
+    });
+  }
   var typedChars=(typedStr||"").length;
   return {pairs:kept, mistakes:mistakes, correctChars:typedChars-incorrectChars,
           wordsTyped:m, spanWords:spanWords, typedChars:typedChars};
@@ -621,11 +682,13 @@ function stats(el){
   var typedStr=typedString(), pos=typedStr.length;
   var al=alignWordsHcm(state.target,typedStr);
   var mins=Math.max(el,1)/60;
-  var gross=(pos/5)/mins;
-  var net=Math.max(0,(al.wordsTyped - al.mistakes)/mins);
-  var acc=pos? (al.correctChars/pos*100):100;
-  var words=al.wordsTyped;
-  return {pos:pos,errs:al.mistakes,gross:gross,net:net,acc:acc,words:words};
+  var W5=Math.round(pos/5);
+  var gross=W5/mins;
+  var net=Math.max(0,(W5 - 10*al.mistakes)/mins);
+  var acc=W5? Math.max(0,Math.min(100,(W5 - al.mistakes)/W5*100)):100;
+  var accChar=pos? (al.correctChars/pos*100):100;
+  var words=W5;
+  return {pos:pos,errs:al.mistakes,gross:gross,net:net,acc:acc,accChar:accChar,words:words};
 }
 function updateStats(el){
   var s=stats(el|| (state.started?(Date.now()-state.startT)/1000:0));
@@ -723,6 +786,7 @@ function computeMistakes(){
     if(p.kind==="ok") return;
     var exp, got;
     if(p.kind==="sub"){ exp=p.exp; got=p.got; }
+    else if(p.kind==="spacing"){ exp=p.exp; got=p.got; }
     else if(p.kind==="del"){ exp=p.exp; got="(missed)"; }
     else { exp="(extra)"; got=p.got; }
     var key=exp+"\u0001"+got;
@@ -739,6 +803,7 @@ function deriveErrCats(){
   var cat={spelling:0,capital:0,punct:0,spacing:0,other:0}, keys={}, words={};
   al.pairs.forEach(function(p){
     if(p.kind==="ok") return;
+    if(p.kind==="spacing"){ cat.spacing++; keys[" "]=(keys[" "]||0)+1; p.exp.split(" ").forEach(function(w){ if(w) words[w]=(words[w]||0)+1; }); return; }
     if(p.kind==="del"){ cat.other++; words[p.exp]=(words[p.exp]||0)+1; return; }
     if(p.kind==="ins"){ cat.other++; return; }
     var e=p.exp, g=p.got;
@@ -799,9 +864,9 @@ function finishTest(){
   if(state.errCat.capital>=3) next="Your capitals are leaking marks — do Part 2 → Opposite-Hand Shift drill next, then re-test.";
   else if(state.errCat.spacing>=3) next="Spacing is your leak — do Part 5 → Spacing Traps next. One space after punctuation, always.";
   else if(state.errCat.punct>=3) next="Punctuation errors are full mistakes in HCM — do Part 5 → Punctuation, Numbers, Dates next.";
-  else if(s.acc>=98 && s.net<30) next="Accuracy is exam-grade. Now build speed with Part 3 n-gram chunks and Part 6 Level 2–3 sentences.";
+  else if(s.accChar>=98 && s.net<30) next="Accuracy is exam-grade. Now build speed with Part 3 n-gram chunks and Part 6 Level 2–3 sentences.";
   else if(s.acc<95) next="Accuracy below 95% is costing you a full marks band. Go back to Part 1 row drills for the row your weakest keys live on, at the 98% gate.";
-  else if(state.isDrill && s.acc>=98) next="Accuracy Gate passed ✅ — this drill is marked complete. Move to the next drill in the part.";
+  else if(state.isDrill && s.accChar>=98) next="Accuracy Gate passed ✅ — this drill is marked complete. Move to the next drill in the part.";
   document.getElementById("rNext").textContent=next;
 
   document.getElementById("rKeys").textContent=s.pos;
@@ -814,9 +879,9 @@ function finishTest(){
     +"<tr><td>Backspaces used</td><td><strong>"+(state.bsCount||0)+"</strong></td></tr>"
     +"<tr><td>Time</td><td><strong>"+minsF.toFixed(2)+" min</strong></td></tr>"
     +"<tr><td>Gross speed = keystrokes ÷ 5 ÷ minutes</td><td><strong>"+s.pos+" ÷ 5 ÷ "+minsF.toFixed(2)+" = "+Math.round(s.gross)+" WPM</strong></td></tr>"
-    +"<tr><td>Words typed</td><td><strong>"+s.words+"</strong></td></tr>"
+    +"<tr><td>Words (keystrokes ÷ 5)</td><td><strong>"+s.words+"</strong></td></tr>"
     +"<tr><td>Mistakes (words — HCM counts no half mistakes)</td><td><strong>"+s.errs+"</strong></td></tr>"
-    +"<tr><td>Net speed = (words typed − mistakes) ÷ minutes</td><td><strong>("+s.words+" − "+s.errs+") ÷ "+minsF.toFixed(2)+" = "+Math.round(s.net)+" WPM</strong></td></tr>"
+    +"<tr><td>Net speed = (words − 10 × mistakes) ÷ minutes</td><td><strong>("+s.words+" − 10 × "+s.errs+") ÷ "+minsF.toFixed(2)+" = "+Math.round(s.net)+" WPM</strong></td></tr>"
     +"<tr><td>Marks</td><td><strong>"+(qual?mk:0)+" / 25</strong> — "+bandLabel(s.net)+"</td></tr>"
     +"</tbody></table>";
   var mres=computeMistakes(); state.lastMistakes=mres.unique;
@@ -832,6 +897,33 @@ function finishTest(){
   }
   document.getElementById("rMistakes").innerHTML=mh;
   var mbEl=document.getElementById("mistakeBtn"); if(mbEl) mbEl.style.display=mres.unique.length?"":"none";
+
+  var cmpEl=document.getElementById("rCompare");
+  if(cmpEl){
+    var alC=alignWordsHcm(state.target||"", typedString());
+    var eSt=[], gSt=[], cCounts={spelling:0,capital:0,punct:0,spacing:0,skipped:0,extra:0};
+    alC.pairs.forEach(function(p){
+      if(p.kind==="ok"){ eSt.push({st:"ok",cat:"ok"}); gSt.push({st:"ok",cat:"ok"}); }
+      else if(p.kind==="del"){ eSt.push({st:"full",cat:"skipped"}); cCounts.skipped++; }
+      else if(p.kind==="ins"){ gSt.push({st:"full",cat:"extra"}); cCounts.extra++; }
+      else if(p.kind==="spacing"){
+        eSt.push({st:"full",cat:"spacing"}); if(p.exp.indexOf(" ")>=0) eSt.push({st:"full",cat:"spacing"});
+        gSt.push({st:"full",cat:"spacing"}); if(p.got.indexOf(" ")>=0) gSt.push({st:"full",cat:"spacing"});
+        cCounts.spacing++;
+      }
+      else {
+        var cc=(typeof classifyPair==="function")? classifyPair(p.exp,p.got) : "spelling"; if(cc==="ok") cc="spelling";
+        eSt.push({st:"full",cat:cc}); gSt.push({st:"full",cat:cc}); cCounts[cc]++;
+      }
+    });
+    var eToksC=hcmWordTokens(state.target||"").map(function(t){ return t.w; });
+    var gToksC=hcmWordTokens(typedString()).map(function(t){ return t.w; });
+    cmpEl.innerHTML="<h3>Passage comparison</h3>"+cmpComparisonHtml(eToksC,gToksC,eSt,gSt,cCounts,false);
+  }
+  [["rNetRing",Math.min(100,s.net/2)],["rAccRing",s.acc],["rMarksRing",(qual?mk:0)/25*100]].forEach(function(cfg){
+    var rc2=document.getElementById(cfg[0]); if(rc2) rc2.setAttribute("data-pct",String(Math.max(0,cfg[1])));
+  });
+  animateRings(rb);
 
   if(state.examMode){
     var pcF=document.getElementById("practiceCard"); if(pcF) pcF.classList.remove("exam-on");
@@ -867,7 +959,7 @@ function finishTest(){
   var rc=document.getElementById("rCloud");
   if(window.__fbUser){ rc.textContent="Saving to cloud…"; saveResultToCloud(entry).then(function(ok){ rc.textContent= ok? "Saved to cloud ✓ — this result is in your account and in Trends." : window.__cloudLimited? "Saved on this device. Cloud saving is paused for a few minutes — it will sync automatically."  : "Saved on this device only — cloud save failed, check connection and log in again."; renderTrends(); }); }
   else { rc.textContent="Saved on this device only — log in to also save it to your account."; }
-  if(state.isDrill && s.acc>=98){ var dn=loadDone(); dn[state.currentId]=true; saveDone(dn); }
+  if(state.isDrill && s.accChar>=98){ var dn=loadDone(); dn[state.currentId]=true; saveDone(dn); }
 
   if(s.pos>0 && state.currentId){
     var recentEntry={d:entry.d,ts:nowIso,gross:Math.round(s.gross),net:Math.round(s.net),acc:+s.acc.toFixed(1),errs:s.errs,marks:(s.net<30?0:marksFor(s.net)),min:state.durMin};

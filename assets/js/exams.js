@@ -1,16 +1,16 @@
 var EXAM_SPECS=[
- {id:"hcm",engine:"E3",name:"Delhi Police HCM",short:"Delhi Police HCM",body:"Delhi Police",posts:"Head Constable Ministerial (HCM)",durationMin:10,durationLabel:"10 minutes",targetLabel:"30 WPM (net) · English",targetWPM:30,nature:"25 marks in final merit",errorAllowance:"No half mistakes — every error counts in full",backspace:true,penaltyLabel:"1 word deducted per full mistake",evaluation:"Marks bands by net WPM",categories:null,starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
-  formula:["Gross WPM = keystrokes typed ÷ 5 ÷ minutes.","Count full mistakes — HCM has no half mistakes: spelling, capitalisation, punctuation, spacing and omitted words all count in full.","Net WPM = (gross words − full mistakes) ÷ minutes.","Marks by net WPM band: below 30 disqualifies · 30 → 10 · 31–35 → 12 · 36–40 → 15 · 41–45 → 18 · 46–50 → 21 · 51+ → 25."],
+ {id:"hcm",engine:"E3",name:"Delhi Police HCM",short:"Delhi Police HCM",body:"Delhi Police",posts:"Head Constable Ministerial (HCM)",durationMin:10,durationLabel:"10 minutes",targetLabel:"30 WPM (net) · English",targetWPM:30,nature:"25 marks in final merit",errorAllowance:"No half mistakes — every error counts in full",backspace:true,penaltyLabel:"10 words deducted per mistake",evaluation:"Marks bands by net WPM",categories:null,starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
+  formula:["Gross WPM = (keystrokes typed ÷ 5) ÷ minutes — keystrokes include spaces.","Every mistake counts in full — spelling, capitalisation, punctuation, spacing, skipped and extra words all count; there are no half mistakes.","Net WPM = (words − 10 × mistakes) ÷ minutes, where words = keystrokes ÷ 5.","Marks by net WPM band: below 30 disqualifies · 30 → 10 · 31–35 → 12 · 36–40 → 15 · 41–45 → 18 · 46–50 → 21 · 51+ → 25."],
   faq:[["What speed do I need?","A net speed of at least 30 WPM to qualify; 51+ net WPM earns the full 25 marks."],["Are there half mistakes in HCM?","No. Every error — even one wrong letter or a missed capital — counts as a full mistake."],["Is the test on paper or screen?","You type from a printed sheet (paper-to-screen). TypeSetu keeps both: choose Screen or Paper View before you start."],["How long is the test?","10 minutes, with a passage of roughly 400+ words (about 2,000 keystrokes)."]]},
- {id:"chsl",engine:"E1",name:"SSC CHSL — LDC / JSA",short:"SSC CHSL",body:"Staff Selection Commission (SSC)",posts:"Lower Division Clerk (LDC) / Junior Secretariat Assistant (JSA)",durationMin:10,durationLabel:"10 minutes",targetLabel:"35 WPM · English",targetWPM:35,nature:"Qualifying only",errorAllowance:"Error % ≤ 7% (UR) · ≤ 10% (Reserved)",backspace:true,penaltyLabel:"Error % = (Full + 0.5 × Half) ÷ words typed × 100",evaluation:"Qualifying — error % cap + 35 WPM speed, by category",categories:[{id:"UR",label:"UR",cap:7},{id:"Reserved",label:"Reserved",cap:10}],starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
-  formula:["Type the passage on screen (TCS-style) in 10 minutes — Backspace is allowed, and only the final on-screen text is judged.","Compare word by word: a word with a single character-level error (one letter wrong, omitted or added, a capitalisation, punctuation or spacing slip) is a HALF mistake; a wrong, skipped or extra word is a FULL mistake.","Error % = (Full mistakes + 0.5 × Half mistakes) ÷ words typed × 100.","You qualify when Error % is within your category cap (UR 7% · Reserved 10%) AND your speed reaches 35 WPM. Untyped passage text is never counted as a mistake — completion % is reported separately."],
-  faq:[["What error % is allowed?","Up to 7% for UR and up to 10% for Reserved categories — and you must also reach 35 WPM."],["What is a half mistake?","A word with exactly one character-level slip — one letter wrong, missed or extra, or a capitalisation / punctuation / spacing slip. Wrong, skipped and extra words are full mistakes."],["Is CHSL typing qualifying or scored?","Qualifying only — it does not add marks to your merit; you must simply clear it."],["How long is the passage?","About 1,750 keystrokes (roughly 230–280 words) in 10 minutes."]]},
- {id:"cgl",engine:"E1",name:"SSC CGL — DEST",short:"SSC CGL DEST",body:"Staff Selection Commission (SSC)",posts:"Data Entry Speed Test (DEST) — Tax Assistant and other posts",durationMin:15,durationLabel:"15 minutes",targetLabel:"Completion within 15 min · English",targetWPM:0,nature:"Qualifying only",errorAllowance:"Error % ≤ 20% (UR) · ≤ 25% (OBC/EWS) · ≤ 30% (Others)",backspace:true,penaltyLabel:"Error % = (Full + 0.5 × Half) ÷ words typed × 100",evaluation:"Qualifying — error % cap by category",categories:[{id:"UR",label:"UR",cap:20},{id:"OBC-EWS",label:"OBC / EWS",cap:25},{id:"Others",label:"Others",cap:30}],starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
-  formula:["Type the passage on screen (TCS-style) in 15 minutes — about 2,000 keystrokes. Backspace is allowed; only the final on-screen text is judged.","Compare word by word: a single character-level slip in a word is a HALF mistake; a wrong, skipped or extra word is a FULL mistake.","Error % = (Full mistakes + 0.5 × Half mistakes) ÷ words typed × 100.","You qualify when Error % is inside your category cap — UR 20% · OBC/EWS 25% · Others 30%. (Higher-standard posts use tighter caps of 5% / 7% / 10%.) There is no separate WPM target: completing the passage inside the cap is the standard. Untyped text is never counted as a mistake."],
-  faq:[["What error % is allowed in DEST?","UR 20%, OBC/EWS 25%, Others 30%. Some higher-standard posts apply 5% / 7% / 10% instead."],["Is there a WPM target?","No separate target — finish the ~2,000-keystroke passage in 15 minutes with your error % inside the cap. Your words typed and gross WPM are shown for information."],["What is a half mistake?","A word with exactly one character-level slip. Wrong, skipped and extra words are full mistakes."],["Is DEST qualifying or scored?","Qualifying only."]]},
- {id:"rrb",engine:"E2",name:"RRB NTPC — CBTST",short:"RRB NTPC",body:"Railway Recruitment Board (RRB)",posts:"NTPC posts requiring a typing skill test (CBTST)",durationMin:10,durationLabel:"10 minutes",targetLabel:"30 WPM (net) · English",targetWPM:30,nature:"Qualifying only",errorAllowance:"First 5% of words typed are penalty-free",backspace:false,penaltyLabel:"10 words per excess mistake (full + half, after 5% free allowance)",evaluation:"Qualifying — net speed ≥ 30 WPM; minimum 300 words typed",categories:null,starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
-  formula:["Type for 10 minutes with Backspace DISABLED — the caret stays at the end, like the real CBTST. If you finish the passage early, it restarts from the beginning and keeps cycling until time ends.","Compare word by word: a word with a single character-level error (one letter wrong, omitted or added, a capitalisation, punctuation or spacing slip) is a HALF mistake; a wrong, skipped or extra word is a FULL mistake.","The first 5% of words typed are penalty-free: Final Mistakes = (Full + 0.5 × Half) − the 5% allowance, never below zero.","Net Speed = (Words typed − Final Mistakes × 10) ÷ minutes. You need at least 300 words typed for the attempt to be evaluated at all, and a net speed of 30 WPM to qualify."],
-  faq:[["Does Backspace work in RRB NTPC typing?","No — Backspace is disabled in the real CBTST, and so it is here. Arrow keys, word-delete shortcuts and mouse repositioning are locked too; the caret stays at the end."],["Are there half mistakes in CBTST?","Yes. Under the official RRB instructions, a word with a single character-level error is a half mistake; wrong, skipped and extra words are full."],["What is the 5% rule?","Mistakes up to 5% of your total words typed are ignored. Beyond that, each final mistake (full + 0.5 × half, after the allowance) deducts 10 words from your net speed."],["What if I type fewer than 300 words?","The attempt is marked “Not evaluated” — the real test applies the same 300-word minimum."]]}
+ {id:"chsl",engine:"E1",name:"SSC CHSL — LDC / JSA",short:"SSC CHSL",body:"Staff Selection Commission (SSC)",posts:"Lower Division Clerk (LDC) / Junior Secretariat Assistant (JSA)",durationMin:10,durationLabel:"10 minutes",targetLabel:"35 WPM · English",targetWPM:35,nature:"Qualifying only",errorAllowance:"Error % ≤ 7% (UR) · ≤ 10% (Reserved)",backspace:true,penaltyLabel:"Error % = (Full + 0.5 × Half) ÷ words × 100",evaluation:"Qualifying — error % cap by category",categories:[{id:"UR",label:"UR",cap:7},{id:"Reserved",label:"Reserved",cap:10}],starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
+  formula:["Type the passage on screen in 10 minutes — Backspace is allowed, and only the final on-screen text is judged.","Mistakes: a wrong or misspelled word, a skipped word and an extra word are FULL mistakes (1.0). A slip of capitalisation, punctuation or spacing alone is a HALF mistake (0.5). A single wrong letter is a spelling mistake — full.","Error % = (Full + 0.5 × Half) ÷ words × 100, where words = keystrokes typed ÷ 5.","You qualify when Error % is within your category cap (UR 7% · Reserved 10%). Words you never reach count as skipped full mistakes — an unfinished passage cannot qualify."],
+  faq:[["What error % is allowed?","Up to 7% for UR and up to 10% for Reserved categories."],["What is a half mistake?","A slip of capitalisation, punctuation or spacing alone (0.5). A wrong letter, wrong word, skipped word or extra word is a full mistake (1.0)."],["Is CHSL typing qualifying or scored?","Qualifying only — it does not add marks to your merit; you must simply clear it."],["How long is the passage?","About 1,750 keystrokes (roughly 230–280 words) in 10 minutes."]]},
+ {id:"cgl",engine:"E1",name:"SSC CGL — DEST",short:"SSC CGL DEST",body:"Staff Selection Commission (SSC)",posts:"Data Entry Speed Test (DEST) — Tax Assistant and other posts",durationMin:15,durationLabel:"15 minutes",targetLabel:"Completion within 15 min · English",targetWPM:0,nature:"Qualifying only",errorAllowance:"Error % ≤ 20% (UR) · ≤ 25% (OBC/EWS) · ≤ 30% (Others)",backspace:true,penaltyLabel:"Error % = (Full + 0.5 × Half) ÷ words × 100",evaluation:"Qualifying — error % cap by category",categories:[{id:"UR",label:"UR",cap:20},{id:"OBC-EWS",label:"OBC / EWS",cap:25},{id:"Others",label:"Others",cap:30}],starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
+  formula:["Type the passage on screen (TCS-style) in 15 minutes — about 2,000 keystrokes. Backspace is allowed; only the final on-screen text is judged.","Mistakes: a wrong or misspelled word, a skipped word and an extra word are FULL mistakes (1.0). A slip of capitalisation, punctuation or spacing alone is a HALF mistake (0.5). A single wrong letter is a spelling mistake — full.","Error % = (Full + 0.5 × Half) ÷ words × 100, where words = keystrokes typed ÷ 5.","You qualify when Error % is inside your category cap — UR 20% · OBC/EWS 25% · Others 30%. Higher-standard (CPT + DEST) posts apply tighter caps — UR 5% · Others 7% · PwBD 10% — and the result shows your standing under both standards. There is no separate WPM target: completing the passage inside the cap is the standard. Words you never reach count as skipped full mistakes — an unfinished passage cannot qualify."],
+  faq:[["What error % is allowed in DEST?","UR 20%, OBC/EWS 25%, Others 30%. Higher-standard (CPT + DEST) posts apply tighter caps — UR 5% · Others 7% · PwBD 10%."],["Is there a WPM target?","No separate target — finish the ~2,000-keystroke passage in 15 minutes with your error % inside the cap. Your words typed and gross WPM are shown for information."],["What is a half mistake?","A slip of capitalisation, punctuation or spacing alone (0.5). A wrong letter, wrong word, skipped word or extra word is a full mistake (1.0)."],["Is DEST qualifying or scored?","Qualifying only."]]},
+ {id:"rrb",engine:"E2",name:"RRB NTPC — CBTST",short:"RRB NTPC",body:"Railway Recruitment Board (RRB)",posts:"NTPC posts requiring a typing skill test (CBTST)",durationMin:10,durationLabel:"10 minutes",targetLabel:"30 WPM (net) · English",targetWPM:30,nature:"Qualifying only",errorAllowance:"First 5% of words typed are penalty-free",backspace:false,penaltyLabel:"10 words per excess mistake (full + half, after 5% free allowance)",evaluation:"Qualifying — net speed ≥ 30 WPM",categories:null,starter:false,pibNote:"Some practice passages are adapted from Press Information Bureau (PIB), Government of India releases.",
+  formula:["Type for 10 minutes with Backspace DISABLED — the caret stays at the end, like the real CBTST. If you finish the passage early, it restarts from the beginning and keeps cycling until time ends.","Mistakes: a wrong or misspelled word, a skipped word and an extra word are FULL mistakes (1.0). A slip of capitalisation, punctuation or spacing alone is a HALF mistake (0.5).","The first 5% of your words are penalty-free: Final Mistakes = max(0, (Full + 0.5 × Half) − 5% of words).","Net Speed = (Words − Final Mistakes × 10) ÷ minutes, where Words = keystrokes typed ÷ 5. A net speed of 30 WPM qualifies."],
+  faq:[["Does Backspace work in RRB NTPC typing?","No — Backspace is disabled in the real CBTST, and so it is here. Arrow keys, word-delete shortcuts and mouse repositioning are locked too; the caret stays at the end."],["Are there half mistakes in CBTST?","Yes — but only for a slip of capitalisation, punctuation or spacing alone (0.5). A wrong letter, wrong word, skipped word or extra word is a full mistake (1.0)."],["What is the 5% rule?","Mistakes up to 5% of your total words typed are ignored. Beyond that, each final mistake (full + 0.5 × half, after the allowance) deducts 10 words from your net speed."],["What if I type fewer than 300 words?","The real CBTST prescribes a script of at least 300 words. TypeSetu scores every attempt — but below ~300 words a qualifying net speed is almost impossible to reach."]]}
 ];
 function specOf(id){ return EXAM_SPECS.find(function(x){return x.id===id;}); }
 function fmtNum(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,","); }
@@ -160,26 +160,48 @@ function lev(a,b){
 }
 function classifyPair(exp,got){
   if(exp===got) return "ok";
-  if(exp.toLowerCase()===got.toLowerCase()) return "half";
-  if(lev(exp,got)===1) return "half";
-  if(lev(exp.replace(/[^A-Za-z0-9]/g,""),got.replace(/[^A-Za-z0-9]/g,""))===0) return "half";
-  return "full";
+  if(exp.toLowerCase()===got.toLowerCase()) return "capital";
+  var strip=function(s){ return s.replace(/[^A-Za-z0-9]/g,""); };
+  if(strip(exp)===strip(got)) return "punct";
+  if(strip(exp).toLowerCase()===strip(got).toLowerCase()) return "capital";
+  return "spelling";
 }
-function scoreWords(expText,gotText){
+function scoreWords(expText,gotText,opts){
+  opts=opts||{};
   var E=expText.split(/\s+/).filter(Boolean), G=gotText.split(/\s+/).filter(Boolean);
   var i=0,j=0,full=0,half=0,wrong=0,skipped=0,extra=0,detail=[];
+  var cats={spelling:0,capital:0,punct:0,spacing:0,skipped:0,extra:0};
+  var eStat=[], gStat=[];
   while(i<E.length&&j<G.length){
-    if(E[i]===G[j]){ i++; j++; continue; }
-    if(i+1<E.length&&E[i+1]===G[j]){ skipped++; full++; detail.push({exp:E[i],got:"",kind:"skipped"}); i++; continue; }
-    if(j+1<G.length&&G[j+1]===E[i]){ extra++; full++; detail.push({exp:"",got:G[j],kind:"extra"}); j++; continue; }
-    if(j===G.length-1 && G[j].length<E[i].length && E[i].indexOf(G[j])===0){ j++; i++; break; }
-    var c=classifyPair(E[i],G[j]);
-    if(c==="half"){ half++; detail.push({exp:E[i],got:G[j],kind:"half"}); } else { full++; wrong++; detail.push({exp:E[i],got:G[j],kind:"wrong"}); }
+    if(E[i]===G[j]){ eStat.push({st:"ok",cat:"ok"}); gStat.push({st:"ok",cat:"ok"}); i++; j++; continue; }
+    if(i+1<E.length && E[i]+E[i+1]===G[j]){
+      half++; cats.spacing++;
+      detail.push({exp:E[i]+" "+E[i+1],got:G[j],kind:"half",cat:"spacing"});
+      eStat.push({st:"half",cat:"spacing"}); eStat.push({st:"half",cat:"spacing"});
+      gStat.push({st:"half",cat:"spacing"});
+      i+=2; j+=1; continue;
+    }
+    if(j+1<G.length && E[i]===G[j]+G[j+1]){
+      half++; cats.spacing++;
+      detail.push({exp:E[i],got:G[j]+" "+G[j+1],kind:"half",cat:"spacing"});
+      eStat.push({st:"half",cat:"spacing"});
+      gStat.push({st:"half",cat:"spacing"}); gStat.push({st:"half",cat:"spacing"});
+      i+=1; j+=2; continue;
+    }
+    if(i+1<E.length&&E[i+1]===G[j]){ skipped++; full++; cats.skipped++; detail.push({exp:E[i],got:"",kind:"skipped",cat:"skipped"}); eStat.push({st:"full",cat:"skipped"}); i++; continue; }
+    if(j+1<G.length&&G[j+1]===E[i]){ extra++; full++; cats.extra++; detail.push({exp:"",got:G[j],kind:"extra",cat:"extra"}); gStat.push({st:"full",cat:"extra"}); j++; continue; }
+    if(j===G.length-1 && G[j].length<E[i].length && E[i].indexOf(G[j])===0){ eStat.push({st:"ok",cat:"ok"}); gStat.push({st:"ok",cat:"ok"}); j++; i++; break; }
+    var cat=classifyPair(E[i],G[j]);
+    if(cat==="capital"||cat==="punct"){ half++; cats[cat]++; detail.push({exp:E[i],got:G[j],kind:"half",cat:cat}); eStat.push({st:"half",cat:cat}); gStat.push({st:"half",cat:cat}); }
+    else { full++; wrong++; cats.spelling++; detail.push({exp:E[i],got:G[j],kind:"wrong",cat:"spelling"}); eStat.push({st:"full",cat:"spelling"}); gStat.push({st:"full",cat:"spelling"}); }
     i++; j++;
   }
-  while(j<G.length){ extra++; full++; detail.push({exp:"",got:G[j],kind:"extra"}); j++; }
+  while(j<G.length){ extra++; full++; cats.extra++; detail.push({exp:"",got:G[j],kind:"extra",cat:"extra"}); gStat.push({st:"full",cat:"extra"}); j++; }
   var consumedE=i;
-  return {full:full,half:half,wrong:wrong,skipped:skipped,extra:extra,detail:detail,wordsTyped:G.length,expWords:E.length,consumedE:consumedE,completion: E.length? Math.min(100,consumedE/E.length*100):0};
+  if(opts.countUntypedSkip){
+    while(i<E.length){ skipped++; full++; cats.skipped++; detail.push({exp:E[i],got:"",kind:"skipped",cat:"skipped",tail:true}); eStat.push({st:"full",cat:"skipped"}); i++; }
+  }
+  return {full:full,half:half,wrong:wrong,skipped:skipped,extra:extra,detail:detail,wordsTyped:G.length,expWords:E.length,consumedE:consumedE,completion: E.length? Math.min(100,consumedE/E.length*100):0,cats:cats,eStat:eStat,gStat:gStat};
 }
 
 var EX={spec:null,test:null,category:null,started:false,startT:0,timer:null,finished:false,fontPx:19,sound:false,audio:null,cycles:0};
@@ -313,43 +335,41 @@ function finishExamTest(){
   if(el<=0) el=sp.durationMin*60;
   var mins=el/60;
   var target= sp.id==="rrb"? exFullTarget() : t.text;
-  var sc=scoreWords(target,typedText);
+  var sc=scoreWords(target,typedText,{countUntypedSkip: sp.engine==="E1"});
   var wordsTyped=sc.wordsTyped;
-  var gross= mins>0? (typedText.length/5)/mins : 0;
+  var W5=Math.round(typedText.length/5);
+  var gross= mins>0? W5/mins : 0;
   var weighted=sc.full+0.5*sc.half;
   var entry, result;
   if(sp.engine==="E1"){
-    var errPct= wordsTyped? (weighted/wordsTyped*100):0;
+    var errPct= W5? (weighted/W5*100):0;
     var cat=sp.categories.find(function(c){return c.id===EX.category;})||sp.categories[0];
 
-    var netInd=Math.max(0,gross-(weighted)/mins);
-    var speedOk= sp.id==="chsl"? (netInd>=sp.targetWPM) : true;
-    var qual= errPct<=cat.cap && speedOk;
-    var reason= qual? "Error "+errPct.toFixed(1)+"% is within the "+cat.cap+"% "+cat.label+" limit"+(sp.id==="chsl"?" and net speed "+Math.round(netInd)+" WPM meets the 35 WPM target":"")
-      : (errPct>cat.cap? "Error "+errPct.toFixed(1)+"% exceeds the "+cat.cap+"% "+cat.label+" limit" : "Net speed "+Math.round(netInd)+" WPM is below the 35 WPM target");
-    var acc=Math.max(0,100-(wordsTyped?(weighted/wordsTyped*100):0));
+    var netInd=gross;
+    var qual= errPct<=cat.cap;
+    var reason= qual? "Error "+errPct.toFixed(1)+"% is within the "+cat.cap+"% "+cat.label+" limit"
+      : "Error "+errPct.toFixed(1)+"% exceeds the "+cat.cap+"% "+cat.label+" limit";
+    var acc= W5? Math.max(0,(W5-weighted)/W5*100):100;
     entry=mkEntry(sp,t,{gross:Math.round(gross),net:Math.round(netInd),acc:+acc.toFixed(1),errs:Math.round(weighted),errorPct:+errPct.toFixed(1),verdict:(qual?"Qualified":"Not qualified")+" — "+reason});
-    result={sp:sp,t:t,sc:sc,qual:qual,reason:reason,gross:gross,netInd:netInd,errPct:errPct,acc:acc,el:el,mins:mins,typedText:typedText,target:target,cat:cat};
+    result={sp:sp,t:t,sc:sc,qual:qual,reason:reason,gross:gross,netInd:netInd,errPct:errPct,acc:acc,el:el,mins:mins,typedText:typedText,target:target,cat:cat,words5:W5};
   } else {
-    var allowance=wordsTyped*0.05;
+    var allowance=W5*0.05;
     var finalM=Math.max(0,weighted-allowance);
-    var net= mins>0? Math.max(0,(wordsTyped-finalM*10)/mins):0;
-    var evaluated=wordsTyped>=300;
-    var qual2= evaluated&&net>=30;
-    var reason2= !evaluated? "Not evaluated — only "+wordsTyped+" words typed; the CBTST minimum is 300 words"
-      : qual2? "Net speed "+net.toFixed(1)+" WPM meets the 30 WPM qualifying standard"
+    var net= mins>0? Math.max(0,(W5-finalM*10)/mins):0;
+    var qual2= net>=30;
+    var reason2= qual2? "Net speed "+net.toFixed(1)+" WPM meets the 30 WPM qualifying standard"
       : "Net speed "+net.toFixed(1)+" WPM is below the 30 WPM qualifying standard";
-    var acc2=Math.max(0,100-(wordsTyped?(weighted/wordsTyped*100):0));
-    var errPct2= wordsTyped? (weighted/wordsTyped*100):0;
-    entry=mkEntry(sp,t,{gross:Math.round(gross),net:Math.round(net),acc:+acc2.toFixed(1),errs:Math.round(weighted),errorPct:+errPct2.toFixed(1),verdict:(evaluated?(qual2?"Qualified":"Not qualified"):"Not evaluated")+" — "+reason2});
+    var acc2= W5? Math.max(0,(W5-weighted)/W5*100):100;
+    var errPct2= W5? (weighted/W5*100):0;
+    entry=mkEntry(sp,t,{gross:Math.round(gross),net:Math.round(net),acc:+acc2.toFixed(1),errs:Math.round(weighted),errorPct:+errPct2.toFixed(1),verdict:(qual2?"Qualified":"Not qualified")+" — "+reason2});
     entry.finalMistakes=+finalM.toFixed(1); entry.allowance=+allowance.toFixed(1);
-    result={sp:sp,t:t,sc:sc,qual:qual2,reason:reason2,gross:gross,net:net,errPct:errPct2,acc:acc2,el:el,mins:mins,typedText:typedText,target:target,allowance:allowance,finalM:finalM,evaluated:evaluated};
+    result={sp:sp,t:t,sc:sc,qual:qual2,reason:reason2,gross:gross,net:net,errPct:errPct2,acc:acc2,el:el,mins:mins,typedText:typedText,target:target,allowance:allowance,finalM:finalM,evaluated:true,words5:W5};
   }
-  entry.full=sc.full; entry.half=sc.half; entry.words=wordsTyped; entry.chars=typedText.length; entry.durSec=Math.round(el);
+  entry.full=sc.full; entry.half=sc.half; entry.words=W5; entry.chars=typedText.length; entry.durSec=Math.round(el);
   entry.breakdown={wrong:sc.wrong,skipped:sc.skipped,extra:sc.extra};
 
   (function(){ var seen={}, det=[];
-    sc.detail.forEach(function(d){ if(d.kind==="extra"||!d.exp) return; var k=d.exp+""+d.got; if(seen[k]) return; seen[k]=1; det.push({exp:d.exp,got:d.got,st:(d.kind==="half"?"half":"full")}); });
+    sc.detail.forEach(function(d){ if(d.kind==="extra"||!d.exp||d.tail) return; var k=d.exp+""+d.got; if(seen[k]) return; seen[k]=1; det.push({exp:d.exp,got:d.got,st:(d.kind==="half"?"half":"full")}); });
     if(det.length) entry.mistakeDetail=det.slice(0,60);
   })();
   result.entryClientId=entry.clientId;
@@ -374,57 +394,70 @@ function mkEntry(sp,t,o){
   var nowIso=new Date().toISOString();
   return {clientId:newClientId(),ts:nowIso,d:new Date().toLocaleString("en-IN"),name:sp.short+" — "+t.name,part:sp.name,gross:o.gross,net:o.net,acc:o.acc,errs:o.errs,marks:0,min:sp.durationMin,durSec:0,chars:0,words:0,bs:0,examMode:true,examId:sp.id,testId:t.id,category:EX.category||"",engine:sp.engine,full:0,half:0,errorPct:o.errorPct,verdict:o.verdict,errCat:{spelling:0,capital:0,punct:0,spacing:0,other:0},weakKeys:{},weakWords:{},synced:false};
 }
-function comparisonHtml(target,typedText,detail){
-  var bad={}, half={};
-  var E=target.split(/\s+/).filter(Boolean);
-  var used={};
-  detail.forEach(function(d){ if(d.kind==="half") half[d.exp]=true; else if(d.exp) bad[d.exp]=true; });
-  return E.map(function(w){
-    if(bad[w]) return "<span class='badW'>"+escapeHtml(w)+"</span>";
-    if(half[w]) return "<span class='halfW'>"+escapeHtml(w)+"</span>";
-    return escapeHtml(w);
-  }).join(" ");
+function cglDualTableHtml(r){
+  var err=r.errPct, myCat=r.cat? r.cat.id:"";
+  function cell(label,cap,own){
+    var pass=err<=cap;
+    return "<td"+(own?" style='background:var(--primarySoft);font-weight:700'":"")+">"+label+" ≤ "+cap+"% — "+(pass?"Passed":"Practice more")+"</td>";
+  }
+  var hiOwn= myCat==="UR"? "UR" : "OTH";
+  return "<div class='card'><h2>Your standing under both DEST standards</h2><div style='overflow-x:auto'><table><tbody>"
+    +"<tr><td style='font-weight:700'>Non-CPT + Non-DEST</td>"+cell("UR",20,myCat==="UR")+cell("OBC / EWS",25,myCat==="OBC-EWS")+cell("Others",30,myCat==="Others")+"</tr>"
+    +"<tr><td style='font-weight:700'>CPT + DEST — higher standard</td>"+cell("UR",5,hiOwn==="UR")+cell("Others",7,hiOwn==="OTH")+"<td>PwBD ≤ 10% — "+(err<=10?"Passed":"Practice more")+"</td></tr>"
+    +"</tbody></table></div><p class='small' style='margin:8px 0 0'>Your headline verdict above uses the Non-CPT + Non-DEST cap for your chosen category — the same standard this site has always applied. The higher-standard row is shown for posts that demand it.</p></div>";
 }
 function renderExamResult(r){
   var sp=r.sp, sc=r.sc;
   var h="<button class='pill' type='button' id='xrBack'>← Back to "+sp.short+" hub</button>";
   h+="<h1 style='font-size:26px;margin-top:12px'>"+sp.name+" — "+r.t.name+"</h1>";
-  h+="<p><span class='statusChip "+(r.qual?"q":"nq")+"'>"+(r.qual?"✓ Qualified":(r.evaluated===false?"Not evaluated":"✗ Not qualified"))+"</span></p><p class='sub'>"+escapeHtml(r.reason)+"</p>";
+  h+="<p><span class='statusChip "+(r.qual?"q":"nq")+"'>"+(r.qual?"✓ Qualified":"✗ Not qualified")+"</span></p><p class='sub'>"+escapeHtml(r.reason)+"</p>";
+  if(sp.id==="cgl") h+=cglDualTableHtml(r);
   h+="<div class='card'><h2>Performance Summary</h2><div class='statsGrid'>"
     +(sp.engine==="E1"
-      ? "<div class='stat'><div class='v'>"+r.errPct.toFixed(1)+"%</div><div class='l'>Error % (headline)</div></div><div class='stat'><div class='v'>"+Math.round(r.gross)+"</div><div class='l'>Gross WPM</div></div><div class='stat'><div class='v'>"+Math.round(r.netInd)+"</div><div class='l'>Net WPM (indicative)</div></div><div class='stat'><div class='v'>"+r.acc.toFixed(1)+"%</div><div class='l'>Accuracy</div></div>"
-      : "<div class='stat'><div class='v'>"+r.net.toFixed(1)+"</div><div class='l'>Net WPM</div></div><div class='stat'><div class='v'>"+Math.round(r.gross)+"</div><div class='l'>Gross WPM</div></div><div class='stat'><div class='v'>"+r.errPct.toFixed(1)+"%</div><div class='l'>Error %</div></div><div class='stat'><div class='v'>"+r.acc.toFixed(1)+"%</div><div class='l'>Accuracy</div></div>")
+      ? ringTileHtml(r.errPct.toFixed(1)+"%","Error %",Math.min(100,r.errPct), r.qual? "var(--green)":"var(--red)")
+        +ringTileHtml(String(Math.round(r.gross)),"Gross WPM",Math.min(100,r.gross/2),"var(--primary)")
+        +ringTileHtml(String(Math.round(r.netInd)),"Net WPM",Math.min(100,r.netInd/2),"var(--primary)")
+        +ringTileHtml(r.acc.toFixed(1)+"%","Accuracy",r.acc,"var(--primary)")
+      : ringTileHtml(r.net.toFixed(1),"Net WPM",Math.min(100,r.net/2),"var(--primary)")
+        +ringTileHtml(String(Math.round(r.gross)),"Gross WPM",Math.min(100,r.gross/2),"var(--primary)")
+        +ringTileHtml(r.acc.toFixed(1)+"%","Accuracy",r.acc,"var(--primary)")
+        +ringTileHtml(r.errPct.toFixed(1)+"%","Error %",Math.min(100,r.errPct), r.qual? "var(--green)":"var(--red)"))
     +"<div class='stat'><div class='v'>"+sc.full+"</div><div class='l'>Full mistakes</div></div>"
     +"<div class='stat'><div class='v'>"+sc.half+"</div><div class='l'>Half mistakes</div></div>"
-    +"<div class='stat'><div class='v'>"+sc.wordsTyped+"</div><div class='l'>Words typed</div></div>"
+    +"<div class='stat'><div class='v'>"+r.words5+"</div><div class='l'>Words typed</div></div>"
     +"<div class='stat'><div class='v'>"+fmtNum(r.typedText.length)+"</div><div class='l'>Keystrokes</div></div>"
     +"<div class='stat'><div class='v'>"+fmtTime(Math.round(r.el))+"</div><div class='l'>Time used</div></div>"
     +"<div class='stat'><div class='v'>"+sc.completion.toFixed(0)+"%</div><div class='l'>Passage completed</div></div>"
-    +"</div><p class='small'>Scoring covers the typed portion only — untyped passage text is never counted as a mistake; completion % is reported separately above.</p></div>";
+    +"</div><p class='small'>"+(sp.engine==="E1"
+      ? "Untyped passage words count as skipped full mistakes — as in the real skill test."
+      : "Scoring covers what you typed; untyped text is not penalised.")+"</p></div>";
   h+="<div class='card'><h2>Mistake Calculation</h2><ol style='padding-left:20px;margin:6px 0'>";
 
   var wtd=sc.full+0.5*sc.half;
   if(sp.engine==="E1"){
-    var gD=r.gross.toFixed(2), pD=(wtd/r.mins).toFixed(2);
-    var nD=Math.max(0,parseFloat(gD)-parseFloat(pD));
     h+="<li>Full mistakes: <strong>"+sc.full+"</strong> · Half mistakes: <strong>"+sc.half+"</strong> (weighted "+wtd.toFixed(1)+").</li>"
-      +"<li>Error % = (Full + 0.5 × Half) ÷ words typed × 100 = ("+sc.full+" + "+(0.5*sc.half).toFixed(1)+") ÷ "+sc.wordsTyped+" × 100 = <strong>"+r.errPct.toFixed(2)+"%</strong> (shown as "+r.errPct.toFixed(1)+"% in the tiles above).</li>"
-      +"<li>Net WPM (indicative) = Gross WPM − weighted mistakes per minute = "+gD+" − "+pD+" = <strong>"+nD.toFixed(2)+" WPM</strong> (shown as "+Math.round(r.netInd)+" in the tiles above).</li>"
-      +"<li>Your category cap ("+r.cat.label+"): <strong>"+r.cat.cap+"%</strong>."+(sp.id==="chsl"?" Net speed: <strong>"+Math.round(r.netInd)+" WPM</strong> against the 35 WPM target — the same net figure as the tiles.":"")+"</li>";
+      +"<li>Words = keystrokes typed ÷ 5 = "+fmtNum(r.typedText.length)+" ÷ 5 = <strong>"+r.words5+"</strong>.</li>"
+      +"<li>Error % = (Full + 0.5 × Half) ÷ words × 100 = ("+sc.full+" + "+(0.5*sc.half).toFixed(1)+") ÷ "+r.words5+" × 100 = <strong>"+r.errPct.toFixed(2)+"%</strong> (shown as "+r.errPct.toFixed(1)+"% in the tiles above).</li>"
+      +"<li>Net WPM = Gross WPM = <strong>"+r.gross.toFixed(2)+" WPM</strong> — SSC verdicts are decided by error %; mistakes do not deduct from speed in this pattern.</li>"
+      +"<li>Your category cap ("+r.cat.label+"): <strong>"+r.cat.cap+"%</strong>.</li>";
   } else {
     h+="<li>Full mistakes: <strong>"+sc.full+"</strong> · Half mistakes: <strong>"+sc.half+"</strong> (weighted "+wtd.toFixed(1)+").</li>"
-      +"<li>Penalty-free allowance = 5% of words typed = 5% × "+sc.wordsTyped+" = <strong>"+r.allowance.toFixed(2)+"</strong>.</li>"
+      +"<li>Words = keystrokes typed ÷ 5 = "+fmtNum(r.typedText.length)+" ÷ 5 = <strong>"+r.words5+"</strong>.</li>"
+      +"<li>Penalty-free allowance = 5% of words = 5% × "+r.words5+" = <strong>"+r.allowance.toFixed(2)+"</strong>.</li>"
       +"<li>Final Mistakes = max(0, (Full + 0.5 × Half) − allowance) = max(0, "+wtd.toFixed(1)+" − "+r.allowance.toFixed(2)+") = <strong>"+r.finalM.toFixed(2)+"</strong> (never below zero).</li>"
-      +"<li>Net Speed = (Words typed − Final Mistakes × 10) ÷ minutes = ("+sc.wordsTyped+" − "+(r.finalM*10).toFixed(1)+") ÷ "+r.mins.toFixed(3)+" = <strong>"+r.net.toFixed(1)+" WPM</strong>.</li>"
-      +(r.evaluated?"<li>Words typed ("+sc.wordsTyped+") clear the 300-word minimum, so this attempt is evaluated.</li>":"<li>Words typed ("+sc.wordsTyped+") are below the 300-word minimum — this attempt is <strong>Not evaluated</strong>.</li>");
+      +"<li>Net Speed = (Words − Final Mistakes × 10) ÷ minutes = ("+r.words5+" − "+(r.finalM*10).toFixed(1)+") ÷ "+r.mins.toFixed(3)+" = <strong>"+r.net.toFixed(1)+" WPM</strong>.</li>";
   }
   h+="</ol></div>";
+  var cats=sc.cats||{spelling:sc.wrong,capital:0,punct:0,spacing:0,skipped:sc.skipped,extra:sc.extra};
   h+="<div class='card'><h2>Error Breakdown</h2><table><tbody>"
-    +"<tr><td>Wrong words</td><td><strong>"+sc.wrong+"</strong></td></tr>"
-    +"<tr><td>Skipped words</td><td><strong>"+sc.skipped+"</strong></td></tr>"
-    +"<tr><td>Extra words</td><td><strong>"+sc.extra+"</strong></td></tr>"
-    +"<tr><td>Half mistakes (single character-level slips)</td><td><strong>"+sc.half+"</strong></td></tr></tbody></table></div>";
-  h+="<div class='card'><h2>Passage Comparison</h2><p class='small'>Original passage with mistakes marked — <span class='badW' style='background:var(--redSoft);color:var(--red);border-radius:4px;padding:0 4px'>full mistake</span> · <span style='background:var(--orangeSoft);color:var(--warn);border-radius:4px;padding:0 4px'>half mistake</span>. Below it is exactly what you typed.</p><div class='cmpBox'>"+comparisonHtml(r.target,r.typedText,sc.detail)+"</div><h3 style='margin-top:14px'>What you typed</h3><div class='cmpBox'>"+escapeHtml(r.typedText||"(nothing typed)")+"</div></div>";
+    +"<tr><td>Spelling (full)</td><td><strong>"+cats.spelling+"</strong></td></tr>"
+    +"<tr><td>Skipped words (full)</td><td><strong>"+cats.skipped+"</strong></td></tr>"
+    +"<tr><td>Extra words (full)</td><td><strong>"+cats.extra+"</strong></td></tr>"
+    +"<tr><td>Capitalisation (half)</td><td><strong>"+cats.capital+"</strong></td></tr>"
+    +"<tr><td>Punctuation (half)</td><td><strong>"+cats.punct+"</strong></td></tr>"
+    +"<tr><td>Spacing (half)</td><td><strong>"+cats.spacing+"</strong></td></tr></tbody></table></div>";
+  var eToks=r.target.split(/\s+/).filter(Boolean), gToks=r.typedText.split(/\s+/).filter(Boolean);
+  h+="<div class='card'><h2>Passage Comparison</h2>"+cmpComparisonHtml(eToks,gToks,sc.eStat,sc.gStat,cats,true)+"</div>";
 
   if(r.tel){
     var fxCtx= sp.engine==="E1"
@@ -436,6 +469,7 @@ function renderExamResult(r){
     +((sc.full+sc.half)>0? "<button class='btn secondary' id='xrDrill' type='button'>🔁 Launch drill — fix these words</button>":"")
     +"<button class='btn secondary' type='button' data-view='progress'>📊 Dashboard</button></div>";
   document.getElementById("exResultBody").innerHTML=h;
+  if(typeof animateRings==="function") animateRings(document.getElementById("exResultBody"));
   document.getElementById("xrBack").addEventListener("click",function(){ openHub(sp.id); });
   document.getElementById("xrRetake").addEventListener("click",function(){ openExamTest(sp,r.t); });
   var xrD=document.getElementById("xrDrill"); if(xrD) xrD.addEventListener("click",function(){ launchResultDrill(r.entryClientId); });
@@ -465,7 +499,7 @@ function renderStoredResult(en){
     var compS= (en.telemetry.words&&expW)? Math.min(100, en.telemetry.words.length/expW*100) : null;
     var sCtx= sp.engine==="E1"
       ? {engine:"E1",examId:sp.id,netWpm:en.net||0,grossWpm:en.gross||0,acc:+en.acc||0,chars:en.chars||0,errorPct:(en.errorPct!=null?en.errorPct:0),cap:catS?catS.cap:0,catLabel:catS?catS.label:"",completion:compS,wordsTyped:en.words||0}
-      : {engine:"E2",examId:sp.id,netWpm:en.net||0,grossWpm:en.gross||0,acc:+en.acc||0,chars:en.chars||0,errorPct:(en.errorPct!=null?en.errorPct:0),completion:compS,wordsTyped:en.words||0,evaluated:(en.words||0)>=300};
+      : {engine:"E2",examId:sp.id,netWpm:en.net||0,grossWpm:en.gross||0,acc:+en.acc||0,chars:en.chars||0,errorPct:(en.errorPct!=null?en.errorPct:0),completion:compS,wordsTyped:en.words||0,evaluated:true};
     h+=forensicsHtml(en.telemetry,sCtx);
   } else {
     h+="<div class='card'><p class='small' style='margin:0'>Detailed analysis is available for tests taken after the Phase 3 update.</p></div>";

@@ -133,6 +133,33 @@ if(startCustomMockEl) startCustomMockEl.addEventListener("click",function(){
   focusCapture();
 });
 
+var ctExam="hcm";
+document.querySelectorAll(".ctPill").forEach(function(b){
+  b.addEventListener("click",function(){
+    ctExam=b.dataset.exam;
+    document.querySelectorAll(".ctPill").forEach(function(x){ x.classList.toggle("active",x===b); });
+  });
+});
+var ctStartEl=document.getElementById("ctStart");
+if(ctStartEl) ctStartEl.addEventListener("click",function(){
+  var ta=document.getElementById("ctText"), msg=document.getElementById("ctMsg");
+  var text=(ta? ta.value:"").replace(/\s+/g," ").trim();
+  if(text.length<100){ if(msg){ msg.textContent="Paste a fuller passage first — at least about 100 characters — so the pattern can score it properly."; msg.style.color="var(--red)"; } return; }
+  if(msg){ msg.textContent=""; }
+  if(ctExam==="hcm"){
+    if(state.examMode) setExamMode(false);
+    setDuration(10);
+    loadText("customMock","Custom Test — Delhi Police HCM",text,false);
+    showView("test");
+    setPaperView(true);
+    focusCapture();
+  } else {
+    var sp=specOf(ctExam); if(!sp) return;
+    var t={id:"custom-"+ctExam, num:0, name:"Custom Test", text:text, diff:"medium", topic:"Custom text"};
+    openExamTest(sp,t);
+  }
+});
+
 var cdurSel=5;
 document.querySelectorAll(".cdur").forEach(function(b){
   b.addEventListener("click",function(){

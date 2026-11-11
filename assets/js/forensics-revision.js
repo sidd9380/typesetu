@@ -28,8 +28,8 @@ function fxDistance(ctx){
   var parts=[];
   if(ctx.netWpm>=30) parts.push("Net speed <strong>"+ctx.netWpm.toFixed(1)+" WPM</strong> — "+(ctx.netWpm-30).toFixed(1)+" above the 30 WPM qualifying floor.");
   else parts.push("Net speed <strong>"+ctx.netWpm.toFixed(1)+" WPM</strong> — "+(30-ctx.netWpm).toFixed(1)+" below the 30 WPM qualifying floor.");
-  if(ctx.wordsTyped<300) parts.push("Words typed <strong>"+ctx.wordsTyped+"</strong> — "+(300-ctx.wordsTyped)+" short of the 300-word minimum, so this attempt is not evaluated.");
-  else parts.push("Words typed <strong>"+ctx.wordsTyped+"</strong> clear the 300-word evaluation minimum.");
+  if(ctx.wordsTyped<300) parts.push("Words typed <strong>"+ctx.wordsTyped+"</strong> — short of the prescribed ~300-word passage, so mistakes had less room to average out.");
+  else parts.push("Words typed <strong>"+ctx.wordsTyped+"</strong> — the full prescribed passage length.");
   return parts.join(" ");
 }
 function fxThirdSpeed(slice,tel,startIdx){
