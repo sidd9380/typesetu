@@ -852,3 +852,32 @@ body:not([data-screen="home"]) .footBottom{margin-top:0}
 .profHead.isLink:hover{border-color:var(--lineStrong)}
 .seg .pill{white-space:nowrap}
 @media(max-width:420px){ .seg .pill{font-size:12.5px;padding:5px 2px} }
+
+/* Accuracy pass: result comparison + progress rings */
+.cmpKeys{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.cmpKey{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+.cmpDot{width:11px;height:11px;border-radius:3px;display:inline-block}
+.cmpGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){ .cmpGrid{grid-template-columns:1fr} }
+.cmpPanel{border:1px solid var(--line);border-radius:var(--radius);padding:14px;background:var(--surface)}
+.cmpPanel h4{margin:0 0 8px;font-size:13px;color:var(--muted)}
+.cmpPanel p{margin:0;line-height:1.9;font-size:15px}
+.cw-spelling{background:color-mix(in srgb,#e5484d 24%,transparent);border-radius:4px;padding:0 2px}
+.cw-extra{background:color-mix(in srgb,#e5484d 24%,transparent);border-radius:4px;padding:0 2px}
+.cw-skipped{background:color-mix(in srgb,#12a594 26%,transparent);border-radius:4px;padding:0 2px}
+.cw-capital{background:color-mix(in srgb,#eab308 30%,transparent);border-radius:4px;padding:0 2px}
+.cw-punct{background:color-mix(in srgb,#8e4ec6 24%,transparent);border-radius:4px;padding:0 2px}
+.cw-spacing{background:color-mix(in srgb,#f76b15 24%,transparent);border-radius:4px;padding:0 2px}
+.cmpDot.cw-spelling,.cmpDot.cw-extra,.cmpDot.cw-skipped,.cmpDot.cw-capital,.cmpDot.cw-punct,.cmpDot.cw-spacing{border-radius:3px}
+.ringStat{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.ringWrap{position:relative;width:76px;height:76px}
+.ringWrap .ringBg{stroke:var(--surface2)}
+.ringFg{transition:stroke-dashoffset 1.15s ease-out;transform:rotate(-90deg);transform-origin:50% 50%}
+.ringVal{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:600 19px var(--fontUI)}
+.ringStat .l{color:var(--muted);font-size:12.5px}
+.big3 .ringStat{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px}
+#rCompare{margin-top:14px}
+#rCompare h3{margin:0 0 10px}
+.pill.ctPill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+:root[data-theme="dark"] .pill.ctPill.active{background:#f2f0eb;color:#15161c;border-color:#f2f0eb}
+@media(prefers-reduced-motion:reduce){ .ringFg{transition:none} }
