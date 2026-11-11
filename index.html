@@ -388,9 +388,9 @@
       <h2 id="rTitle">Result</h2>
       <p id="rVerdict"></p>
       <div class="resultGrid big3">
-        <div class="stat"><div class="v" id="rNet">0</div><div class="l">Net WPM</div></div>
-        <div class="stat"><div class="v" id="rAcc">0%</div><div class="l">Accuracy</div></div>
-        <div class="stat"><div class="v" id="rMarks">—</div><div class="l">Marks / 25</div></div>
+        <div class="ringStat"><div class="ringWrap"><svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle class="ringBg" cx="38" cy="38" r="32" stroke-width="7" fill="none"/><circle class="ringFg" id="rNetRing" cx="38" cy="38" r="32" stroke-width="7" fill="none" stroke="var(--primary)" stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06" data-pct="0"/></svg><div class="ringVal" id="rNet">0</div></div><div class="l">Net WPM</div></div>
+        <div class="ringStat"><div class="ringWrap"><svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle class="ringBg" cx="38" cy="38" r="32" stroke-width="7" fill="none"/><circle class="ringFg" id="rAccRing" cx="38" cy="38" r="32" stroke-width="7" fill="none" stroke="var(--primary)" stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06" data-pct="0"/></svg><div class="ringVal" id="rAcc">0%</div></div><div class="l">Accuracy</div></div>
+        <div class="ringStat"><div class="ringWrap"><svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle class="ringBg" cx="38" cy="38" r="32" stroke-width="7" fill="none"/><circle class="ringFg" id="rMarksRing" cx="38" cy="38" r="32" stroke-width="7" fill="none" stroke="var(--green)" stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06" data-pct="0"/></svg><div class="ringVal" id="rMarks">—</div></div><div class="l">Marks / 25</div></div>
       </div>
       <div class="resultActions">
         <button class="btn" id="againBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-rotate"/></svg>Type it again</button>
@@ -409,6 +409,7 @@
       </div>
       <div id="rCalc"></div>
       <div id="rMistakes" style="margin-top:14px"></div>
+      <div id="rCompare"></div>
       <div class="grid2">
         <div>
           <h3>Error breakdown</h3>
@@ -754,9 +755,18 @@
   <div class="navBackRow"><button class="pill navBackBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-chev-left"/></svg>Back</button></div>
   <h1>Custom Tests</h1>
   <p class="sub">Bring your own passage — from a book, a PDF or a teacher's sheet — and sit it as a proper scored test.</p>
-  <div class="featGrid">
-    <button class="featCard" type="button" data-view="mock"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg></span><strong>Custom Mock</strong><p>Paste a paragraph and sit it in paper-to-screen format with the full result — saved in your history as a Custom Mock.</p></button>
-    <button class="featCard" type="button" data-view="practice"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></span><strong>Custom Text</strong><p>Paste any passage and practise it with live scoring at your chosen duration.</p></button>
+  <div class="card">
+    <h2>Custom test — your text, an exam's rules</h2>
+    <textarea class="customTa" id="ctText" rows="6" placeholder="Paste your passage here…" aria-label="Paste your passage"></textarea>
+    <p class="small" style="margin:10px 0 6px">Result pattern — the full rules of the exam you pick apply (duration, backspace, scoring):</p>
+    <div class="controls" style="margin:0 0 12px">
+      <button class="pill ctPill active" data-exam="hcm" type="button">Delhi Police HCM</button>
+      <button class="pill ctPill" data-exam="chsl" type="button">SSC CHSL</button>
+      <button class="pill ctPill" data-exam="cgl" type="button">SSC CGL DEST</button>
+      <button class="pill ctPill" data-exam="rrb" type="button">RRB NTPC</button>
+    </div>
+    <button class="btn" id="ctStart" type="button">Start custom test</button>
+    <p class="authMsg" id="ctMsg" role="status"></p>
   </div>
 </section>
 
@@ -956,7 +966,7 @@
     <a href="rrb-ntpc-typing-test/">RRB NTPC</a>
   </div>
   <div class="footBottom">
-    <span>© 2026 TypeSetu</span>
+    <span>© 2026 TypeSetu · v1</span>
     <span>Practice tool — not affiliated with SSC, RRB or Delhi Police.</span>
   </div>
 </footer>
