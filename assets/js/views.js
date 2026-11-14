@@ -1,6 +1,6 @@
-var VIEWS=["home","test","drills","practice","guide","progress","login","signup","hubs","hub","examtest","examresult","soon","customtests","revision","factcards"];
+var VIEWS=["home","test","drills","warmup","practice","guide","progress","login","signup","hubs","hub","examtest","examresult","soon","customtests","revision","factcards"];
 var lastView="home", returnView="home";
-var VIEW_TITLES={home:"Home",test:"Typing test",drills:"Lessons & drills",practice:"Practice passages",guide:"Exam guide",progress:"Dashboard",login:"Log in",signup:"Create account",hubs:"Exam patterns",hub:"Exam patterns",examtest:"Exam test",examresult:"Result",soon:"Coming soon",customtests:"Custom tests",revision:"Revision",factcards:"Fact Cards"};
+var VIEW_TITLES={home:"Home",test:"Typing test",drills:"Lessons & drills",warmup:"Warm-Up",practice:"Practice passages",guide:"Exam guide",progress:"Dashboard",login:"Log in",signup:"Create account",hubs:"Exam patterns",hub:"Exam patterns",examtest:"Exam test",examresult:"Result",soon:"Coming soon",customtests:"Custom tests",revision:"Revision",factcards:"Fact Cards"};
 function showView(name,scrollTarget){
   if(VIEWS.indexOf(name)<0) name="home";
   if(name!=="login"&&name!=="signup"){ lastView=name; }
@@ -119,6 +119,8 @@ if(ctStartEl) ctStartEl.addEventListener("click",function(){
   if(ctExam==="hcm"){
     if(state.examMode) setExamMode(false);
     setDuration(10);
+    if(typeof setTestContext==="function") setTestContext("exam");
+    if(typeof setSilo==="function") setSilo({key:"customtest",view:"customtests",items:[{id:"customMock",name:"Custom Test — Delhi Police HCM",text:text,isDrill:false}],index:0});
     loadText("customMock","Custom Test — Delhi Police HCM",text,false);
     showView("test");
     setPaperView(true);
@@ -145,6 +147,8 @@ if(loadCustomEl) loadCustomEl.addEventListener("click",function(){
   if(state.examMode) setExamMode(false);
   if(state.paperView) setPaperView(false);
   setDuration(cdurSel);
+  if(typeof setTestContext==="function") setTestContext("practice");
+  if(typeof setSilo==="function") setSilo({key:"paste",view:"practice",items:[{id:"customText",name:"Custom text",text:text,isDrill:false}],index:0});
   loadText("customText","Custom text",text,false);
   if(msg){ msg.textContent=""; }
   showView("test"); focusCapture();
