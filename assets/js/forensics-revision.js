@@ -428,6 +428,8 @@ function revStartStreamSession(wordsArray){
   if(state.examMode&&typeof setExamMode==="function") setExamMode(false);
   if(state.paperView&&typeof setPaperView==="function") setPaperView(false);
   setDuration(2);
+  if(typeof setTestContext==="function") setTestContext("practice");
+  if(typeof setSilo==="function") setSilo({key:"revision",view:"revision",items:[{id:"revisionStream",name:"Revision session",text:stream.join(" "),isDrill:true}],index:0});
   loadText("revisionStream","Revision session",stream.join(" "),true);
   gotoPractice(); focusCapture();
   return true;
