@@ -93,7 +93,6 @@
       <button class="navLink" type="button" data-view="test">Typing Test</button>
       <button class="navLink" type="button" data-view="drills">Drills</button>
       <button class="navLink" type="button" data-view="practice">Practice</button>
-      <button class="navLink" type="button" data-view="mock">Exam Mock</button>
       <button class="navLink" type="button" data-view="guide">Guide</button>
       <button class="navLink" type="button" data-view="progress">Progress</button>
     </nav>
@@ -123,7 +122,6 @@
   <div class="sbSec">Practice</div>
   <button class="sbLink" type="button" data-view="hubs"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg></span><span class="sbLabel">Exam patterns</span></button>
   <button class="sbLink" type="button" data-view="test"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-keyboard"/></svg></span><span class="sbLabel">Typing test</span></button>
-  <button class="sbLink" type="button" data-view="mock"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-landmark"/></svg></span><span class="sbLabel">Exam mock</span></button>
   <button class="sbLink" type="button" data-view="customtests"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg></span><span class="sbLabel">Custom tests</span></button>
   <button class="sbLink" type="button" id="sbRevision" data-view="revision"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-repeat"/></svg></span><span class="sbLabel">Revision</span><span class="sbBadge" id="sbRevBadge" style="display:none"></span></button>
   <button class="sbLink" type="button" data-view="factcards"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-cards"/></svg></span><span class="sbLabel">Fact Cards</span><span class="fcFunTag">Fun</span></button>
@@ -136,7 +134,7 @@
     <div class="sbCta">
       <strong>Exam in a few weeks?</strong>
       <span>Sit a full timed mock and see your verdict.</span>
-      <button class="btn" type="button" data-view="mock"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start a mock</button>
+      <button class="btn" type="button" data-view="hubs"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start a mock</button>
     </div>
   </div>
 </aside>
@@ -164,7 +162,6 @@
     <h3 class="drawerH">Practice</h3>
     <button class="mrow" type="button" data-view="hubs"><span><svg class="ic" aria-hidden="true"><use href="#i-grid"/></svg>Exam patterns</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <button class="mrow" type="button" data-view="test"><span><svg class="ic" aria-hidden="true"><use href="#i-keyboard"/></svg>Typing test</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
-    <button class="mrow" type="button" data-view="mock"><span><svg class="ic" aria-hidden="true"><use href="#i-landmark"/></svg>Exam mock</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <button class="mrow" type="button" data-view="customtests"><span><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg>Custom tests</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <button class="mrow" type="button" data-view="revision"><span><svg class="ic" aria-hidden="true"><use href="#i-repeat"/></svg>Revision</span><span class="mval" id="drawerRevDue"></span></button>
     <button class="mrow" type="button" data-view="factcards"><span><svg class="ic" aria-hidden="true"><use href="#i-cards"/></svg>Fact Cards</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
@@ -289,7 +286,7 @@
 
   <h2 class="sectionH">Everything you need to qualify</h2>
   <div class="featGrid">
-    <button class="featCard" type="button" data-view="mock"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-landmark"/></svg></span><strong>Exam mock</strong><p>A full timed paper with locked controls and the real scoring rules.</p></button>
+    <button class="featCard" type="button" data-view="hubs"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-landmark"/></svg></span><strong>Exam patterns</strong><p>Every exam's full test list — full timed papers with the real scoring rules.</p></button>
     <button class="featCard" type="button" data-view="revision"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-repeat"/></svg></span><strong>Revision</strong><p>Your weak words come back on a spaced-repetition cycle.</p></button>
     <button class="featCard" type="button" data-view="progress"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-chart"/></svg></span><strong>Dashboard</strong><p>Trends, worked marks and where your errors come from.</p></button>
     <button class="featCard" type="button" data-view="customtests"><span class="fic"><svg class="ic" aria-hidden="true"><use href="#i-pen"/></svg></span><strong>Custom tests</strong><p>Paste any passage and sit it as a scored test.</p></button>
@@ -342,7 +339,12 @@
         </div>
         <div class="setGroup" id="kbRow"><span class="setLabel">Keyboard</span><button class="pill kbToggleBtn" type="button">Show finger keyboard</button></div>
         <div class="setGroup"><span class="setLabel">Exam</span>
-          <button class="pill" id="examToggle" type="button" title="Strict exam simulation: fixed 10 minutes, live stats hidden until the end">Real exam mode · Off</button>
+          <button class="pill" id="examToggle" type="button" title="Strict exam simulation for the exam picked here: its real duration, live stats hidden until the end">Real exam mode · Off</button>
+          <button class="pill exModePill active" data-exam="hcm" type="button">HCM · 10 min</button>
+          <button class="pill exModePill" data-exam="chsl" type="button">CHSL · 10 min</button>
+          <button class="pill exModePill" data-exam="cgl" type="button">CGL · 15 min</button>
+          <button class="pill exModePill" data-exam="rrb" type="button">RRB · 10 min</button>
+          <button class="pill" id="examPaperToggle" type="button" title="Paper typing: read the passage from a paper-style sheet and type in a plain box, like the real hall">Paper typing · Off</button>
         </div>
       </div>
     </details>
@@ -486,40 +488,6 @@
   </div>
 </section>
 
-</section>
-
-<section class="view" id="view-mock">
-  <div class="navBackRow"><button class="pill navBackBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-chev-left"/></svg>Back</button></div>
-  <div class="card">
-    <h2>Real Exam Mode</h2>
-    <ul class="tight">
-      <li><strong>Fixed 10 minutes</strong> with the full-length Railways passage — no choosing, no changing text.</li>
-      <li><strong>Only the timer shows.</strong> Live speed, accuracy, errors and marks stay hidden until the test ends.</li>
-      <li><strong>Controls locked</strong> — no restart, no new text mid-test. The only way out is the End Test button.</li>
-      <li><strong>Raw typing</strong> — no live error highlighting, exactly like the real exam software.</li>
-    </ul>
-    <button class="btn big" id="mockExamBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start Real Exam Mode</button>
-  </div>
-  <div class="card">
-    <h2>10-minute exam simulation</h2>
-    <p>Full-length Railways passage · live stats on.</p>
-    <button class="btn big" id="mockSimBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start simulation</button>
-  </div>
-  <div class="card">
-    <h2>Custom mock</h2>
-    <p>Paste a paragraph — paper-to-screen format, full scored result.</p>
-    <textarea class="customTa" id="customMockText" rows="5" placeholder="Paste your mock paragraph here…" aria-label="Paste your own paragraph for a custom mock"></textarea>
-    <div class="controls" style="margin-top:10px">
-      <strong>Duration:</strong>
-      <button class="pill mdur" data-min="1" type="button">1 min</button>
-      <button class="pill mdur" data-min="2" type="button">2 min</button>
-      <button class="pill mdur" data-min="5" type="button">5 min</button>
-      <button class="pill mdur active" data-min="10" type="button">10 min</button>
-      <span style="flex:1"></span>
-      <button class="btn" id="startCustomMock" type="button"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start custom mock</button>
-    </div>
-    <p class="authMsg" id="customMockMsg" role="status"></p>
-  </div>
 </section>
 
 <section class="view" id="view-guide">
@@ -765,7 +733,7 @@
       <button class="pill ctPill" data-exam="cgl" type="button">SSC CGL DEST</button>
       <button class="pill ctPill" data-exam="rrb" type="button">RRB NTPC</button>
     </div>
-    <button class="btn" id="ctStart" type="button">Start custom test</button>
+    <button class="btn btnStart" id="ctStart" type="button">Start custom test</button>
     <p class="authMsg" id="ctMsg" role="status"></p>
   </div>
 </section>
@@ -798,7 +766,7 @@
       </div>
     </div>
     <p class="hint">The timer starts on your first keystroke and the test submits itself at 0:00. No live speed or accuracy is shown during an exam test — exactly like the real hall.</p>
-    <button class="btn big" id="exStartBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start test</button>
+    <button class="btn big btnStart" id="exStartBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-play"/></svg>Start test</button>
   </div>
   <div id="exStage" style="display:none">
     <div class="exPassage" id="exPassage" aria-label="Passage to type"></div>
@@ -948,7 +916,6 @@
       <button class="footLink" type="button" data-view="test">Typing test</button>
       <button class="footLink" type="button" data-view="drills">Lessons &amp; drills</button>
       <button class="footLink" type="button" data-view="practice">Practice passages</button>
-      <button class="footLink" type="button" data-view="mock">Exam mock</button>
     </div>
     <div>
       <h4>Learn</h4>
@@ -966,7 +933,7 @@
     <a href="rrb-ntpc-typing-test/">RRB NTPC</a>
   </div>
   <div class="footBottom">
-    <span>© 2026 TypeSetu · v1</span>
+    <span>© 2026 TypeSetu · v2</span>
     <span>Practice tool — not affiliated with SSC, RRB or Delhi Police.</span>
   </div>
 </footer>
