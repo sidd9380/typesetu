@@ -1871,8 +1871,10 @@ function renderWarmups(){
   var wf=document.querySelector(".wff.active"); var f=wf? wf.dataset.wdiff : "all";
   wrap.innerHTML=WARMUPS.map(function(w){
     if(f!=="all"&&w.level!==f) return "";
-    var isSel=(state.currentId===w.id)||(state.currentId&&state.currentId.indexOf(w.id+"-")===0);
-    return "<button class='drill warmCard"+(isSel?" sel":"")+"' data-wu='"+w.id+"'><span class='tag'>15-Min Warm-Up</span> <span class='dtag d-"+w.level+"'>"+diffLabel(w.level)+"</span><strong style='display:block;font-size:15px;margin-top:2px'>"+w.name+"</strong><p>"+w.desc+"</p><span class='warmLoad'>Open set →</span></button>";
+    /* Outer set cards NEVER carry state (sid's rule): no "sel" class here — the
+       generic .drill.sel style adds a blue highlight and a "✓ " ::before prefix,
+       which read as a completion marker. Completion shows only inside the set. */
+    return "<button class='drill warmCard' data-wu='"+w.id+"'><span class='tag'>15-Min Warm-Up</span> <span class='dtag d-"+w.level+"'>"+diffLabel(w.level)+"</span><strong style='display:block;font-size:15px;margin-top:2px'>"+w.name+"</strong><p>"+w.desc+"</p><span class='warmLoad'>Open set →</span></button>";
   }).join("");
   wrap.querySelectorAll("[data-wu]").forEach(function(b){
     b.addEventListener("click",function(){
