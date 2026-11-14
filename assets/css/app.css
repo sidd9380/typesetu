@@ -886,3 +886,26 @@ body:not([data-screen="home"]) .footBottom{margin-top:0}
 .pill.ctPill.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 :root[data-theme="dark"] .pill.ctPill.active{background:#f2f0eb;color:#15161c;border-color:#f2f0eb}
 @media(prefers-reduced-motion:reduce){ .ringFg{transition:none} }
+
+/* Numbers drill — live finger hints */
+#numHint{margin-top:14px;border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;background:var(--surface)}
+.numHintBar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.numHintInfo{display:flex;align-items:center;gap:14px;flex-wrap:wrap;flex:1;min-width:200px;min-height:34px}
+.numNext{display:inline-flex;align-items:center;gap:8px}
+.numNextLabel{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.numNextKey{font-family:var(--font-mono);font-weight:700;font-size:15px;min-width:36px;text-align:center;padding:4px 8px;border-radius:8px;background:var(--primary);color:#fff}
+.numFinger{display:inline-flex;align-items:center;gap:7px;font-weight:600;font-size:14px}
+.numFinger .dot{width:11px;height:11px;border-radius:50%;background:var(--muted);display:inline-block;flex:none}
+.numHintMsg{font-size:13px;color:var(--saffron);font-weight:600}
+#numHintToggle{margin-left:auto}
+.numKb{display:flex;gap:5px;margin-top:12px}
+.numKb .key{transition:transform .12s ease,box-shadow .12s ease,background .12s ease}
+.numKb .key.next{transform:translateY(-3px) scale(1.07);color:#fff;border-color:transparent;box-shadow:0 6px 14px rgba(20,24,60,.22);font-weight:800;background:var(--primary)}
+.numKb .key.fp.next{background:rgba(219,39,119,.78)}
+.numKb .key.fr.next{background:rgba(234,88,12,.85)}
+.numKb .key.fm.next{background:rgba(202,138,4,.9)}
+.numKb .key.fi.next{background:rgba(43,69,200,.85)}
+.numKb .key.wrong{background:var(--redSoft);border-color:var(--red);color:var(--red);animation:numShake .3s ease}
+.numKb .key.hit{box-shadow:inset 0 0 0 2px var(--green)}
+@keyframes numShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+@media(prefers-reduced-motion:reduce){ .numKb .key{transition:none} .numKb .key.wrong{animation:none} }
