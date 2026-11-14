@@ -266,9 +266,95 @@ function fmtTime(s){ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+":"+("0
 var state={ target:"", typed:[], caret:0, started:false, startT:0, durMin:5, timer:null, finished:false,
   errCat:{spelling:0,capital:0,punct:0,spacing:0,other:0}, errKeys:{}, errWords:{},
   currentId:"paraM1", currentName:"Paragraph — Medium 1 · Public Administration", isDrill:false,
-  examMode:false, paperView:false, bsCount:0, lastMistakes:[] };
+  examMode:false, paperView:false, bsCount:0, lastMistakes:[],
+  ctx:"practice", silo:null, capSec:0 };
 
 var paperHold=false, paperProgScroll=false;
+
+/* ===== Push 4 — practice/exam context + siloed picker =====
+   The shared test screen has two personalities. EXAM context (hub HCM mocks,
+   Custom Tests, Real Exam Mode): countdown, marks, verdicts — v5 behaviour.
+   PRACTICE context (everything else): count-up timer, no marks, siloed
+   passage picker, practice result card. Launchers set the context and the
+   silo (the ordered item list the picker and Next are confined to). */
+function isExamCtx(){ return !!(state.examMode || state.ctx==="exam"); }
+function setTestContext(c){
+  state.ctx= (c==="exam")? "exam" : "practice";
+  paintContext();
+}
+function setSilo(s){
+  state.silo=s||null;
+  state.capSec= (s && s.capSec)? s.capSec : 0;
+}
+function paintContext(){
+  var pc=document.getElementById("practiceCard"); if(!pc) return;
+  var exam=isExamCtx();
+  pc.classList.toggle("ctxExam",exam);
+  pc.classList.toggle("ctxPractice",!exam);
+  var lbl=document.getElementById("sTimeLabel"); if(lbl) lbl.textContent= exam? "Time left" : "Time";
+  var dg=document.getElementById("durGroup"); if(dg) dg.style.display= exam? "" : "none";
+  var nhr=document.getElementById("numHintRow"); if(nhr) nhr.style.display= (typeof isNumLesson==="function" && isNumLesson())? "" : "none";
+}
+function loadSiloIndex(i){
+  var s=state.silo; if(!s||!s.items||!s.items[i]) return;
+  s.index=i; var it=s.items[i];
+  loadText(it.id,it.name,it.text,it.isDrill);
+}
+function practiceBackToList(){
+  var s=state.silo;
+  if(s && typeof s.onBack==="function"){ s.onBack(); return; }
+  if(s && s.view && typeof showView==="function") showView(s.view);
+}
+function practiceLibraryItems(){
+  var seen={}, items=[];
+  SESSION_CATS.forEach(function(cat){
+    cat.ids.forEach(function(id){
+      if(seen[id]) return;
+      var it=flatTexts.find(function(x){ return x.id===id; });
+      if(it){ seen[id]=1; items.push({id:it.id,name:it.name,text:it.text,isDrill:it.id.indexOf("para")!==0}); }
+    });
+  });
+  return items;
+}
+function practiceLibSilo(currentId){
+  var items=practiceLibraryItems(), idx=0;
+  items.forEach(function(it,i){ if(it.id===(currentId||"paraM1")) idx=i; });
+  return {key:"lib",view:"practice",items:items,index:idx,onBack:function(){ if(typeof showView==="function") showView("practice"); }};
+}
+function hubMockSilo(currentId){
+  var items=(typeof hcmTests==="function"? hcmTests() : []).map(function(t){
+    return {id:t.id,name:t.name,text:t.text,isDrill:true};
+  });
+  var idx=0; items.forEach(function(it,i){ if(it.id===currentId) idx=i; });
+  return {key:"hubmock",view:"hubs",items:items,index:idx,onBack:function(){ if(typeof showView==="function") showView("hubs"); }};
+}
+function drillSiloFor(id){
+  for(var pi=0;pi<DRILLS.length;pi++){
+    var part=DRILLS[pi], idx=-1;
+    part.items.forEach(function(it,i){ if(it.id===id) idx=i; });
+    if(idx>=0){
+      drillOpenPart=pi;
+      return {key:"drill:"+pi,view:"drills",partIdx:pi,index:idx,
+        items:part.items.map(function(it){ return {id:it.id,name:it.name,text:it.text,isDrill:it.id.indexOf("para")!==0}; }),
+        onBack:function(){ drillOpenPart=pi; if(typeof showView==="function") showView("drills"); }};
+    }
+  }
+  return null;
+}
+function enterTypingTest(){
+  if(state.examMode && typeof setExamMode==="function") setExamMode(false);
+  var lib=practiceLibraryItems(); if(!lib.length) return;
+  var inLib=false; lib.forEach(function(it){ if(it.id===state.currentId) inLib=true; });
+  if(!isExamCtx() && inLib && state.silo && state.silo.key==="lib") return;
+  setTestContext("practice");
+  setSilo(practiceLibSilo(inLib? state.currentId : "paraM1"));
+  if(!inLib){ var it=state.silo.items[state.silo.index]; if(it) loadText(it.id,it.name,it.text,it.isDrill); }
+  else if(typeof syncTextSelect==="function") syncTextSelect();
+}
+document.addEventListener("click",function(e){
+  var t=e.target && e.target.closest ? e.target.closest('[data-view="test"]') : null;
+  if(t) enterTypingTest();
+});
 
 var LS_SET="hcm_settings_v1";
 function loadSettings(){ try{ var s=JSON.parse(localStorage.getItem(LS_SET)); return (s&&typeof s==="object"&&!Array.isArray(s))?s:{}; }catch(e){ return {}; } }
@@ -289,6 +375,7 @@ function wordCountOf(s){ return (s||"").split(/\s+/).filter(Boolean).length; }
 
 function buildTarget(base){
   var t=base||"";
+  if(!isExamCtx()) return t; /* practice runs the full text, to completion */
   if(state.examMode || state.currentId==="sim10") return t;
   var need=state.durMin*50;
   var words=t.split(/\s+/).filter(Boolean);
@@ -302,7 +389,9 @@ function buildTarget(base){
 function updateSizeLine(){
   var sl=document.getElementById("sizeLine"); if(!sl) return;
   var shown=wordCountOf(state.target);
-  if(state.examMode||state.currentId==="sim10"){
+  if(!isExamCtx()){
+    sl.textContent="Loaded: "+(state.currentName||"")+" · "+shown+" words · practice"+(state.capSec? " · up to "+Math.round(state.capSec/60)+" min":"");
+  } else if(state.examMode||state.currentId==="sim10"){
     sl.textContent="Loaded: "+(state.currentName||"Exam passage")+" · "+shown+" words · 10 min";
   } else {
     sl.textContent="Loaded: "+(state.currentName||"")+" · "+shown+" words · "+state.durMin+" min";
@@ -342,9 +431,10 @@ function updateLessonHistory(){
   if(lessonHistoryExpanded){
     h+="<div class='lhBody' id='lhBody'>";
     h+="<p style='margin:2px 0 8px'>"+(st.completed?"<strong style='color:var(--green)'>\u2713 Completed</strong>":"<span style='color:var(--muted)'>Not completed yet</span>")+(st.passed?" \u00B7 <span style='color:var(--green);font-weight:700'>Accuracy Gate passed (98%+)</span>":"")+" \u00B7 "+arr.length+" recent attempt"+(arr.length>1?"s":"")+"</p>";
-    h+="<div style='overflow-x:auto'><table><tr><th>Date</th><th>Duration</th><th>Gross</th><th>Net WPM</th><th>Accuracy</th><th>Errors</th><th>Marks</th></tr>";
+    var examHist=isExamCtx();
+    h+="<div style='overflow-x:auto'><table><tr><th>Date</th><th>Duration</th><th>Gross</th><th>Net WPM</th><th>Accuracy</th><th>Errors</th>"+(examHist?"<th>Marks</th>":"")+"</tr>";
     arr.slice(0,10).forEach(function(en){
-      h+="<tr><td>"+escapeHtml(String(en.d||en.ts||""))+"</td><td>"+(en.min?en.min+" min":"\u2014")+"</td><td>"+(en.gross||0)+"</td><td><strong>"+(en.net||0)+"</strong></td><td>"+(+en.acc||0).toFixed(1)+"%</td><td>"+(en.errs||0)+"</td><td>"+((en.net||0)>=30?(en.marks||0)+" / 25":"DQ")+"</td></tr>";
+      h+="<tr><td>"+escapeHtml(String(en.d||en.ts||""))+"</td><td>"+(en.min?en.min+" min":"\u2014")+"</td><td>"+(en.gross||0)+"</td><td><strong>"+(en.net||0)+"</strong></td><td>"+(+en.acc||0).toFixed(1)+"%</td><td>"+(en.errs||0)+"</td>"+(examHist?"<td>"+((en.net||0)>=30?(en.marks||0)+" / 25":"DQ")+"</td>":"")+"</tr>";
     });
     h+="</table></div>";
     h+="</div>";
@@ -361,11 +451,14 @@ function resetTest(){
   state.bsCount=0; state.lastMistakes=[];
   capture.value="";
   document.getElementById("resultBox").style.display="none";
+  var prR=document.getElementById("pracResult"); if(prR) prR.style.display="none";
   typeBox.scrollTop=0;
   renderText(); updateStats(0);
   typeBox.scrollTop=0;
-  document.getElementById("sTime").textContent=fmtTime(state.durMin*60);
-  var fsR=document.getElementById("fsTime"); if(fsR) fsR.textContent=fmtTime(state.durMin*60);
+  var t0=isExamCtx()? fmtTime(state.durMin*60) : fmtTime(0);
+  document.getElementById("sTime").textContent=t0;
+  var fsR=document.getElementById("fsTime"); if(fsR) fsR.textContent=t0;
+  paintContext();
   document.body.classList.remove("focused");
   document.getElementById("progBar").style.width="0%";
   document.getElementById("modeHint").textContent="";
@@ -560,12 +653,22 @@ function currentWord(pos){
 function startTimer(){
   state.started=true; state.startT=Date.now();
   document.body.classList.add("focused");
-  var fsT0=document.getElementById("fsTime"); if(fsT0) fsT0.textContent=fmtTime(state.durMin*60);
+  var fsT0=document.getElementById("fsTime"); if(fsT0) fsT0.textContent= isExamCtx()? fmtTime(state.durMin*60) : fmtTime(0);
   if(typeof paintSubmitBtn==="function") paintSubmitBtn();
   var eb0=document.getElementById("endTestBtn"); if(eb0 && state.examMode) eb0.disabled=false;
   var et0=document.getElementById("examToggle"); if(et0 && state.examMode) et0.disabled=true;
   state.timer=setInterval(function(){
     var el=(Date.now()-state.startT)/1000, total=state.durMin*60;
+    if(!isExamCtx()){
+      /* Practice: count UP from 0:00; the ribbon tracks text completion.
+         Warm-Up silos carry a cap (capSec) that ends the session. */
+      document.getElementById("sTime").textContent=fmtTime(el);
+      var fsP=document.getElementById("fsTime"); if(fsP) fsP.textContent=fmtTime(el);
+      document.getElementById("progBar").style.width=(state.target.length? Math.min(100,state.typed.length/state.target.length*100):0)+"%";
+      updateStats(el);
+      if(state.capSec && el>=state.capSec) finishTest();
+      return;
+    }
     document.getElementById("sTime").textContent=fmtTime(total-el);
     var fsT=document.getElementById("fsTime"); if(fsT) fsT.textContent=fmtTime(total-el);
     document.getElementById("progBar").style.width=Math.min(100,el/total*100)+"%";
@@ -711,6 +814,10 @@ function updateStats(el){
   var m=document.getElementById("sMarks");
   if(!state.started||s.pos<10){ m.textContent="—"; }
   else { var mk=marksFor(s.net); m.textContent = s.net<30 ? "0 · DQ" : mk+" / 25"; }
+  if(!isExamCtx()){
+    var pb2=document.getElementById("progBar");
+    if(pb2) pb2.style.width=(state.target.length? Math.min(100,s.pos/state.target.length*100):0)+"%";
+  }
 }
 
 var pendingWinY=null, pendingWinX=null;
@@ -762,7 +869,9 @@ capture.addEventListener("input",function(){
 
     if(mhEl) mhEl.textContent= state.examMode
       ? "Text complete — timer still running. You can still correct anything; press End Test when ready."
-      : "Text complete — timer still running. You can still correct anything; press Submit when ready.";
+      : isExamCtx()
+        ? "Text complete — timer still running. You can still correct anything; press Submit when ready."
+        : "Text complete — that's the whole text. You can still correct anything; press Finish to see your result.";
   } else if(mhEl && mhEl.textContent.indexOf("Text complete")===0){
     mhEl.textContent= state.examMode? "Real exam mode · "+state.currentName+" · "+state.durMin+" min · stats hidden until the end" : "";
   }
@@ -920,17 +1029,39 @@ function bandLabel(n){
   if(n<=50) return "46–50 band — 21 marks";
   return "51+ band — full 25 marks";
 }
+function practiceLine(s){
+  if(s.pos>0 && s.errs===0) return "Not a single error — that's exam-grade control.";
+  if(s.accChar>=98) return "Accuracy at the 98% gate — exam-grade control. Speed will follow.";
+  var cats=[["spelling","Biggest leak: spelling — slow down on the words that broke, not everywhere."],
+    ["capital","Biggest leak: capitals — opposite-hand Shift, every single time."],
+    ["punct","Biggest leak: punctuation — read the marks as part of the word."],
+    ["spacing","Biggest leak: spacing — one space after punctuation, always."],
+    ["other","Biggest leak: skipped or extra words — keep your eyes a phrase ahead of your fingers."]];
+  var top=null, topN=0;
+  cats.forEach(function(c){ var n=state.errCat[c[0]]||0; if(n>topN){ topN=n; top=c[1]; } });
+  if(top) return top;
+  return "Solid practice run — accuracy first, and speed follows.";
+}
 function finishTest(){
   if(state.finished) return; state.finished=true;
   if(typeof updateNumHint==="function") updateNumHint();
   document.body.classList.remove("focused");
   clearInterval(state.timer);
   var sbF=document.getElementById("submitBtn"); if(sbF) sbF.style.display="none";
-  var el=state.started? Math.min((Date.now()-state.startT)/1000, state.durMin*60) : 0;
-  if(el<=0) el=state.durMin*60;
+  var el;
+  if(isExamCtx()){
+    el=state.started? Math.min((Date.now()-state.startT)/1000, state.durMin*60) : 0;
+    if(el<=0) el=state.durMin*60;
+  } else {
+    el=state.started? (Date.now()-state.startT)/1000 : 0;
+  }
   var s=stats(el), mk=marksFor(s.net), qual=s.net>=30;
   deriveErrCats();
+  var prevBest=null;
+  try{ prevBest=lessonStatus(state.currentId).best; }catch(e){}
+  var mres=computeMistakes(); state.lastMistakes=mres.unique;
   var rb=document.getElementById("resultBox"); rb.style.display="block";
+  if(isExamCtx()){
   rb.className="resultBox"+(qual?"":" fail");
   document.getElementById("rTitle").textContent=(state.isDrill?"Drill result — ":"Test result — ")+state.currentName;
   document.getElementById("rVerdict").innerHTML= qual
@@ -973,7 +1104,6 @@ function finishTest(){
     +"<tr><td>Net speed = (words − 10 × mistakes) ÷ minutes</td><td><strong>("+s.words+" − 10 × "+s.errs+") ÷ "+minsF.toFixed(2)+" = "+Math.round(s.net)+" WPM</strong></td></tr>"
     +"<tr><td>Marks</td><td><strong>"+(qual?mk:0)+" / 25</strong> — "+bandLabel(s.net)+"</td></tr>"
     +"</tbody></table>";
-  var mres=computeMistakes(); state.lastMistakes=mres.unique;
   var mh="<h3>Word-by-word mistakes ("+mres.total+")</h3>";
   if(!mres.rows.length){
     mh+="<p class='small'>No word mistakes — every word you reached was typed exactly as printed. 🎉</p>";
@@ -1020,6 +1150,34 @@ function finishTest(){
     var etF=document.getElementById("examToggle"); if(etF) etF.disabled=false;
     document.getElementById("rTitle").textContent="Real Exam Mode result — "+state.currentName;
   }
+    var prHide=document.getElementById("pracResult"); if(prHide) prHide.style.display="none";
+  } else {
+    /* Practice result card — no marks, no verdicts, just the run and one
+       honest line. Storage/history/best side effects below are unchanged. */
+    rb.className="resultBox practiceMode";
+    document.getElementById("rTitle").textContent="Practice result — "+state.currentName;
+    var pr=document.getElementById("pracResult"); if(pr) pr.style.display="block";
+    var setT=function(id,v){ var n=document.getElementById(id); if(n) n.textContent=v; };
+    setT("prNet", Math.round(s.net));
+    setT("prAcc", s.acc.toFixed(1)+"%");
+    setT("prTime", fmtTime(Math.round(el)));
+    setT("prErr", s.errs);
+    setT("prWords", s.words);
+    setT("prGross", Math.round(s.gross));
+    setT("prLine", practiceLine(s));
+    var tg=document.getElementById("prTarget");
+    if(tg){
+      if(state.isDrill){ tg.style.display=""; tg.textContent= s.accChar>=98? "Target 98% — reached 🎯" : "Target 98% — you hit "+s.accChar.toFixed(1)+"%"; }
+      else tg.style.display="none";
+    }
+    var pbEl=document.getElementById("prBest");
+    if(pbEl) pbEl.style.display= (prevBest && Math.round(s.net)>(prevBest.net||0))? "" : "none";
+    var nbEl=document.getElementById("prNextBtn");
+    if(nbEl){
+      var hasNext= !!(state.silo && state.silo.items && state.silo.index<state.silo.items.length-1);
+      nbEl.textContent= hasNext? "Next →" : "Finish — back to list";
+    }
+  }
 
   var nowIso=new Date().toISOString();
   var entry={clientId:newClientId(),ts:nowIso,d:new Date().toLocaleString("en-IN"),name:state.currentName,part:(state.currentName||""),gross:Math.round(s.gross),net:Math.round(s.net),acc:+s.acc.toFixed(1),errs:s.errs,marks:qual?mk:0,min:state.durMin,durSec:Math.round(el),chars:s.pos,words:s.words,bs:state.bsCount||0,examMode:!!state.examMode,errCat:Object.assign({},state.errCat),weakKeys:Object.assign({},state.errKeys),weakWords:Object.assign({},state.errWords),synced:false};
@@ -1063,7 +1221,7 @@ function finishTest(){
 }
 
 function activatePanel(name){
-  var viewMap={practice:"test",warmup:"drills",lessons:"drills",sessions:"practice",guide:"guide",progress:"progress",trends:"progress"};
+  var viewMap={practice:"test",warmup:"warmup",lessons:"drills",sessions:"practice",guide:"guide",progress:"progress",trends:"progress"};
   if(typeof showView==="function") showView(viewMap[name]||"home");
 
   try{ window.scrollTo(0,0); }catch(e){}
@@ -1108,30 +1266,30 @@ if(quickWarmEl) quickWarmEl.addEventListener("click",function(){ activatePanel("
 var preExamState=null;
 
 function syncTextSelect(){
+  /* Push 4: the picker is populated ONLY from the active silo — no way to
+     cross into another section's texts from here. */
   var selEl=document.getElementById("textSelect");
   if(!selEl) return;
-  var matchOp=null, dynOp=null;
-  for(var oi=0;oi<selEl.options.length;oi++){
-    var op=selEl.options[oi];
-    if(op.getAttribute("data-dyn")==="1") dynOp=op;
-    else if(op.value===state.currentId) matchOp=op;
+  var s=state.silo;
+  if(!s||!s.items||!s.items.length){
+    selEl.innerHTML="";
+    var o=document.createElement("option");
+    o.value=state.currentId||"customText"; o.textContent=state.currentName||"Custom text";
+    selEl.appendChild(o); selEl.value=o.value;
+    return;
   }
-  if(matchOp){
-    if(dynOp && dynOp.parentNode) dynOp.parentNode.removeChild(dynOp);
-    selEl.value=state.currentId;
-  } else {
-    if(!dynOp){ dynOp=document.createElement("option"); dynOp.setAttribute("data-dyn","1"); selEl.appendChild(dynOp); }
-    dynOp.value=state.currentId||"customText";
-    dynOp.textContent=state.currentName||"Custom text";
-    selEl.value=dynOp.value;
-  }
+  var html="";
+  s.items.forEach(function(it){ html+="<option value=\""+escapeHtml(it.id)+"\">"+escapeHtml(it.name)+"</option>"; });
+  selEl.innerHTML=html;
+  selEl.value=state.currentId;
+  s.items.forEach(function(it,i){ if(it.id===state.currentId) s.index=i; });
 }
 function setExamMode(on){
   var wasExam=!!state.examMode;
   state.examMode=!!on;
   var pc=document.getElementById("practiceCard"), btn=document.getElementById("examToggle"), eb=document.getElementById("endTestBtn");
   if(state.examMode){
-    if(!wasExam) preExamState={durMin:state.durMin,currentId:state.currentId,currentName:state.currentName};
+    if(!wasExam) preExamState={durMin:state.durMin,currentId:state.currentId,currentName:state.currentName,ctx:state.ctx};
     setDuration(10);
     ["textSelect","newTextBtn","restartBtn"].forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=true; });
     document.querySelectorAll(".dur").forEach(function(x){ x.disabled=true; });
@@ -1144,11 +1302,12 @@ function setExamMode(on){
     ["textSelect","newTextBtn","restartBtn"].forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=false; });
     document.querySelectorAll(".dur").forEach(function(x){ x.disabled=false; });
     if(eb) eb.style.display="none";
-    if(btn){ btn.textContent="Real exam mode · Off"; btn.classList.remove("active"); }
+    if(btn){ btn.disabled=false; btn.textContent="Real exam mode · Off"; btn.classList.remove("active"); }
     if(pc) pc.classList.remove("exam-on");
 
     var restoreMin=(preExamState && preExamState.durMin)? preExamState.durMin : (state.durMin===10?5:state.durMin);
     setDuration(restoreMin);
+    state.ctx=(preExamState && preExamState.ctx)? preExamState.ctx : "practice";
     syncTextSelect();
     preExamState=null;
     resetTest();
@@ -1202,8 +1361,10 @@ if(examToggleEl) examToggleEl.addEventListener("click",function(){
     }
     return;
   }
-  setExamMode(!state.examMode);
+  var turnOn=!state.examMode;
+  setExamMode(turnOn);
   paintExamModeUI();
+  if(turnOn && typeof showView==="function"){ showView("test"); focusCapture(); }
 });
 paintExamModeUI();
 var endTestEl=document.getElementById("endTestBtn");
@@ -1221,6 +1382,11 @@ function setPaperView(on){
   if(tg){ tg.textContent="Paper view · "+(state.paperView?"On":"Off"); tg.classList.toggle("active",state.paperView); }
   if(state.examMode){ SETTINGS.examPaper=!!on; persistSettings(); if(typeof paintExamModeUI==="function") paintExamModeUI(); }
   if(typeof applyHighlightUI==="function") applyHighlightUI();
+  /* Push 4 §6: the options gear rides the typing box in Paper View and the
+     passage card otherwise. */
+  var gearEl=document.getElementById("optGear");
+  var gearSlot=document.getElementById(state.paperView? "gearSlotBox" : "gearSlotCard");
+  if(gearEl && gearSlot && gearEl.parentNode!==gearSlot) gearSlot.appendChild(gearEl);
   renderText();
   if(state.paperView){
     updatePaperSheet();
@@ -1236,6 +1402,27 @@ function setPaperView(on){
 }
 var paperToggleEl=document.getElementById("paperToggle");
 if(paperToggleEl) paperToggleEl.addEventListener("click",function(){ setPaperView(!state.paperView); focusCapture(); });
+
+/* Push 4 §6 — Test options gear + anchored popover */
+var optGearEl=document.getElementById("optGear");
+var optPopEl=document.getElementById("optPop");
+function closeOptPop(){ if(optPopEl) optPopEl.hidden=true; if(optGearEl) optGearEl.setAttribute("aria-expanded","false"); }
+function toggleOptPop(){
+  if(!optPopEl||!optGearEl) return;
+  if(!optPopEl.hidden){ closeOptPop(); return; }
+  var r=optGearEl.getBoundingClientRect();
+  optPopEl.hidden=false;
+  optPopEl.style.top=(r.bottom+8)+"px";
+  optPopEl.style.right=Math.max(8,window.innerWidth-r.right)+"px";
+  optGearEl.setAttribute("aria-expanded","true");
+}
+if(optGearEl) optGearEl.addEventListener("click",function(e){ e.stopPropagation(); toggleOptPop(); });
+document.addEventListener("click",function(e){
+  if(!optPopEl||optPopEl.hidden) return;
+  if(optPopEl.contains(e.target)||(optGearEl&&optGearEl.contains(e.target))) return;
+  closeOptPop();
+});
+document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeOptPop(); });
 
 var paperSheetEl=document.getElementById("paperSheet");
 if(paperSheetEl) paperSheetEl.addEventListener("scroll",function(){ if(!paperProgScroll) paperHold=true; });
@@ -1253,6 +1440,8 @@ if(mistakeBtnEl) mistakeBtnEl.addEventListener("click",function(){
   if(state.paperView) setPaperView(false);
   var text=words.map(function(w){ return w+" "+w+" "+w; }).join(" ");
   setDuration(2);
+  setTestContext("practice");
+  setSilo({key:"mistakes",view:"drills",items:[{id:"mistakeDrill",name:"Practise My Mistakes — words from your last test",text:text,isDrill:true}],index:0});
   loadText("mistakeDrill","Practise My Mistakes — words from your last test",text,true);
   gotoPractice(); focusCapture();
 });
@@ -1280,7 +1469,8 @@ function paintSubmitBtn(){
   sb.style.display= show? "":"none";
   if(show){
     var ready= state.target.length>0 && state.typed.length>=state.target.length;
-    sb.textContent= ready? "✓ Submit result" : "Submit";
+    if(isExamCtx()) sb.textContent= ready? "✓ Submit result" : "Submit";
+    else sb.textContent= ready? "✓ Finish" : "Finish";
     sb.classList.toggle("big", ready);
   }
 }
@@ -1308,16 +1498,34 @@ if(submitBtnEl) submitBtnEl.addEventListener("click",function(){ if(state.starte
 document.getElementById("restartBtn").addEventListener("click",function(){ resetTest(); focusCapture(); });
 document.getElementById("againBtn").addEventListener("click",function(){ resetTest(); focusCapture(); });
 document.getElementById("nextBtn").addEventListener("click",function(){ cycleText(); });
-document.getElementById("newTextBtn").addEventListener("click",function(){ cycleText(); });
+document.getElementById("newTextBtn").addEventListener("click",function(){
+  if(!isExamCtx() && state.silo && state.silo.items && state.silo.items.length){
+    loadSiloIndex((state.silo.index+1)%state.silo.items.length);
+    focusCapture();
+    return;
+  }
+  cycleText();
+});
+var prNextBtnEl=document.getElementById("prNextBtn");
+if(prNextBtnEl) prNextBtnEl.addEventListener("click",function(){
+  var s=state.silo;
+  if(s && s.items && s.index<s.items.length-1){ loadSiloIndex(s.index+1); focusCapture(); }
+  else practiceBackToList();
+});
+var prAgainBtnEl=document.getElementById("prAgainBtn");
+if(prAgainBtnEl) prAgainBtnEl.addEventListener("click",function(){ resetTest(); focusCapture(); });
+var prBackBtnEl=document.getElementById("prBackBtn");
+if(prBackBtnEl) prBackBtnEl.addEventListener("click",function(){ practiceBackToList(); });
 
 var flatTexts=[];
 DRILLS.forEach(function(sec){ sec.items.forEach(function(it){ flatTexts.push(it); }); });
 var sel=document.getElementById("textSelect");
-flatTexts.forEach(function(it){ var o=document.createElement("option"); o.value=it.id; o.textContent=it.name; sel.appendChild(o); });
-sel.value="paraM1";
+/* Push 4: the picker is filled from the active silo by syncTextSelect()
+   (boot sets the Practice Passages library silo) — never globally. */
 sel.addEventListener("change",function(){
-  var it=flatTexts.find(function(x){return x.id===sel.value});
-  if(it) loadText(it.id,it.name,it.text, it.id.indexOf("para")!==0 && it.id!=="sim10" ? true : (it.id==="sim10"));
+  var s=state.silo; if(!s||!s.items) return;
+  var idx=-1; s.items.forEach(function(it,i){ if(it.id===sel.value) idx=i; });
+  if(idx>=0) loadSiloIndex(idx);
   else if(typeof syncTextSelect==="function") syncTextSelect();
   focusCapture();
 });
@@ -1342,7 +1550,7 @@ var SESSION_CATS=[
  {title:"Extended Sessions",desc:"Paired passages back to back — the longest stamina sessions.",ids:["paraMix1","paraMix2","paraMix3"]}
 ];
 var openCats={0:true};
-function lessonRow(it){
+function lessonRow(it,serial){
   var d=DIFF[it.id]||"medium";
   var st=lessonStatus(it.id);
   var isSel=(state.currentId===it.id);
@@ -1350,10 +1558,15 @@ function lessonRow(it){
     +"<span class='attLine"+(st.completed?" ok":"")+"'>"+(st.completed?"✓ Completed":(st.attempts?"In progress":""))+(st.attempts?" · "+st.attempts+" attempt"+(st.attempts>1?"s":""):"")+"</span>"
     +(st.passed?"<span class='attLine ok'>✅ 98% gate passed</span>":"")
     +(st.best?"<span class='attLine'>Best: "+st.best.net+" WPM · "+(+st.best.acc).toFixed(1)+"%</span>":"");
-  return "<button class='drill lrow"+(isSel?" sel":"")+"' data-id='"+it.id+"' data-diff='"+d+"'><span class='playIc'>▶</span><span class='lrowMain'><strong>"+it.name+"</strong><span class='lrowSub'>"+it.desc+"</span>"+durSummaryHtml(it.id)+"</span><span class='lrowSide'>"+side+"</span></button>";
+  return "<button class='drill lrow"+(isSel?" sel":"")+"' data-id='"+it.id+"' data-diff='"+d+"'>"+(serial?"<span class='lrowNum'>"+serial+"</span>":"")+"<span class='playIc'>▶</span><span class='lrowMain'><strong>"+it.name+"</strong><span class='lrowSub'>"+it.desc+"</span>"+durSummaryHtml(it.id)+"</span><span class='lrowSide'>"+side+"</span></button>";
 }
-function selectLessonById(id){
+function selectLessonById(id,opts){
+  opts=opts||{};
   var it=flatTexts.find(function(x){return x.id===id}); if(!it) return;
+  if(!opts.keepCtx && state.examMode) setExamMode(false);
+  if(!opts.keepCtx) setTestContext(opts.ctx||"practice");
+  if(opts.silo) setSilo(opts.silo);
+  else if(!opts.keepSilo){ var ds=drillSiloFor(id); if(ds) setSilo(ds); }
   sel.value=it.id;
   loadText(it.id,it.name,it.text, it.id.indexOf("para")!==0);
 
@@ -1368,33 +1581,78 @@ function attachDrillClicks(wrap){
     b.addEventListener("click",function(){ selectLessonById(b.dataset.id); });
   });
 }
+var PART_ACCENTS=["#2b45c8","#d97a0b","#178a4c","#7c3aed","#0e7490","#db2777","#b45309","#4d7c0f"];
+var drillOpenPart=null;
 function renderDrills(){
+  if(drillOpenPart===null){
+    drillOpenPart=0;
+    DRILLS.forEach(function(sec,idx){
+      if(idx>=5 && !sec.numPart) return;
+      sec.items.forEach(function(it){ if(it.id===state.currentId) drillOpenPart=idx; });
+    });
+  }
   var htmlD="";
   DRILLS.forEach(function(sec,idx){
     if(idx>=5 && !sec.numPart) return;
-    var h="<div class='partGroup'><h3 style='margin:18px 0 8px'>"+sec.part+" — "+sec.items.length+" lessons</h3><div class='rows'>";
-    sec.items.forEach(function(it){ h+=lessonRow(it); });
-    h+="</div></div>";
+    var acc=PART_ACCENTS[idx%PART_ACCENTS.length];
+    var open=(drillOpenPart===idx);
+    var h="<div class='partAcc"+(open?" open":"")+"' data-part='"+idx+"'>"
+      +"<button type='button' class='partHead' data-part='"+idx+"' aria-expanded='"+(open?"true":"false")+"'><span class='accDot' style='--acc:"+acc+"'></span><span class='partName'>"+sec.part+"</span><span class='partCount'>"+sec.items.length+" lessons</span><span class='chev'>"+(open?"▾":"▸")+"</span></button>"
+      +"<div class='partBody'><div class='rows'>";
+    sec.items.forEach(function(it,i){ h+=lessonRow(it,i+1); });
+    h+="</div></div></div>";
     htmlD+=h;
   });
-  var wrap=document.getElementById("drillSections"); if(wrap){ wrap.innerHTML=htmlD; attachDrillClicks(wrap); }
+  var wrap=document.getElementById("drillSections");
+  if(wrap){ wrap.innerHTML=htmlD; attachDrillClicks(wrap);
+    wrap.querySelectorAll(".partHead").forEach(function(b){
+      b.addEventListener("click",function(){
+        var pi=+b.dataset.part;
+        drillOpenPart= (drillOpenPart===pi)? -1 : pi;
+        renderDrills();
+      });
+    });
+  }
   var htmlS="";
   SESSION_CATS.forEach(function(cat,ci){
     var items=cat.ids.map(function(id){ return flatTexts.find(function(x){return x.id===id}); }).filter(Boolean);
     if(!items.length) return;
-    var doneN=items.filter(function(it){ return lessonStatus(it.id).completed; }).length;
-    htmlS+="<div class='catCard"+(openCats[ci]?" open":"")+"'><button type='button' class='catHead' data-cat='"+ci+"'><strong>"+cat.title+"</strong><span class='catCount'>"+items.length+" lesson"+(items.length>1?"s":"")+" · "+doneN+" completed</span><span class='chev'>"+(openCats[ci]?"▾":"▸")+"</span></button>"
+    /* Completion ticks live inside the opened category only — the closed
+       card header carries the lesson count and nothing else. */
+    htmlS+="<div class='catCard"+(openCats[ci]?" open":"")+"'><button type='button' class='catHead' data-cat='"+ci+"'><strong>"+cat.title+"</strong><span class='catCount'>"+items.length+" lesson"+(items.length>1?"s":"")+"</span><span class='chev'>"+(openCats[ci]?"▾":"▸")+"</span></button>"
       +(cat.desc?"<p class='catDesc'>"+cat.desc+"</p>":"")
       +"<div class='catRows'><div class='rows' style='margin:0'>";
-    items.forEach(function(it){ htmlS+=lessonRow(it); });
+    items.forEach(function(it,i){ htmlS+=lessonRow(it,i+1); });
     htmlS+="</div></div></div>";
   });
-  var swrap=document.getElementById("sessionSections"); if(swrap){ swrap.innerHTML=htmlS; attachDrillClicks(swrap);
+  var swrap=document.getElementById("sessionSections"); if(swrap){ swrap.innerHTML=htmlS; attachSessionClicks(swrap);
     swrap.querySelectorAll(".catHead").forEach(function(b){
       b.addEventListener("click",function(){ var ci=b.dataset.cat; openCats[ci]=!openCats[ci]; renderDrills(); });
     });
   }
   if(typeof applyDiffFilter==="function") applyDiffFilter();
+}
+function attachSessionClicks(wrap){
+  if(!wrap) return;
+  wrap.querySelectorAll(".drill").forEach(function(b){
+    b.addEventListener("click",function(){
+      var card=b.closest ? b.closest(".catCard") : null;
+      var head=card? card.querySelector(".catHead") : null;
+      var ci=head? +head.dataset.cat : 0;
+      var cat=SESSION_CATS[ci]; if(!cat) return;
+      var items=cat.ids.map(function(id){ return flatTexts.find(function(x){return x.id===id}); }).filter(Boolean);
+      var idx=-1; items.forEach(function(it,i){ if(it.id===b.dataset.id) idx=i; });
+      if(idx<0) return;
+      if(state.examMode) setExamMode(false);
+      setTestContext("practice");
+      setSilo({key:"cat:"+ci,view:"practice",index:idx,
+        items:items.map(function(it){ return {id:it.id,name:it.name,text:it.text,isDrill:it.id.indexOf("para")!==0}; }),
+        onBack:function(){ openCats[ci]=true; if(typeof showView==="function") showView("practice"); }});
+      var it=items[idx];
+      loadText(it.id,it.name,it.text, it.id.indexOf("para")!==0);
+      gotoPractice(); focusCapture();
+    });
+  });
 }
 
 function renderDashboard(){
@@ -1837,9 +2095,15 @@ WARMUPS.forEach(function(w){
   w.subsets=list;
 });
 var warmOpenSet=null;
+var WARM_ACCENTS=["#2b45c8","#d97a0b","#178a4c","#7c3aed","#0e7490","#db2777"];
 function warmStartSubset(w,sub){
   document.querySelectorAll(".dur").forEach(function(x){ x.classList.toggle("active",x.dataset.min==="15"); });
   state.durMin=15;
+  if(state.examMode) setExamMode(false);
+  setTestContext("practice");
+  setSilo({key:"warm:"+w.id,view:"warmup",capSec:15*60,index:sub.n-1,
+    items:w.subsets.map(function(sb){ return {id:sb.id,name:"Warm-Up · "+w.name+" — Subset "+sb.n,text:sb.text,isDrill:true}; }),
+    onBack:function(){ warmOpenSet=w.id; if(typeof showView==="function") showView("warmup"); }});
   loadText(sub.id,"Warm-Up · "+w.name+" — Subset "+sub.n,sub.text,true);
   gotoPractice(); focusCapture();
 }
@@ -1869,12 +2133,12 @@ function renderWarmups(){
     return;
   }
   var wf=document.querySelector(".wff.active"); var f=wf? wf.dataset.wdiff : "all";
-  wrap.innerHTML=WARMUPS.map(function(w){
+  wrap.innerHTML=WARMUPS.map(function(w,wi){
     if(f!=="all"&&w.level!==f) return "";
     /* Outer set cards NEVER carry state (sid's rule): no "sel" class here — the
        generic .drill.sel style adds a blue highlight and a "✓ " ::before prefix,
        which read as a completion marker. Completion shows only inside the set. */
-    return "<button class='drill warmCard' data-wu='"+w.id+"'><span class='tag'>15-Min Warm-Up</span> <span class='dtag d-"+w.level+"'>"+diffLabel(w.level)+"</span><strong style='display:block;font-size:15px;margin-top:2px'>"+w.name+"</strong><p>"+w.desc+"</p><span class='warmLoad'>Open set →</span></button>";
+    return "<button class='drill warmCard' data-wu='"+w.id+"' style='--acc:"+WARM_ACCENTS[wi%WARM_ACCENTS.length]+"'><span class='tag'>15-Min Warm-Up</span> <span class='dtag d-"+w.level+"'>"+diffLabel(w.level)+"</span><strong style='display:block;font-size:15px;margin-top:2px'>"+w.name+"</strong><p>"+w.desc+"</p><span class='warmLoad'>Open set →</span></button>";
   }).join("");
   wrap.querySelectorAll("[data-wu]").forEach(function(b){
     b.addEventListener("click",function(){
@@ -1897,12 +2161,14 @@ function applyDiffFilter(){
   var activeF=document.querySelector(".dff.active");
   var f=activeF? activeF.dataset.diff : "all";
   var wrap=document.getElementById("drillSections"); if(!wrap) return;
-  wrap.querySelectorAll(".partGroup").forEach(function(g){
+  wrap.querySelectorAll(".partAcc").forEach(function(g){
     var any=false;
     g.querySelectorAll(".drill").forEach(function(c){
       var show=(f==="all"||c.dataset.diff===f);
       c.style.display=show?"":"none"; if(show) any=true;
     });
+    /* Choice (Push 4 §4): a part with zero matching lessons hides entirely
+       rather than sitting dimmed in the list. */
     g.style.display=any?"":"none";
   });
 }
@@ -1936,7 +2202,8 @@ window.addEventListener("resize",function(){ positionCaret(state.typed.length); 
 if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function(){ positionCaret(state.typed.length); }); }
 
 state.base=PARAS.med1;
-applyName(); applySiteName(); paintFinishUI(); paintPrefs(); paintProfile(); renderDrills(); renderWarmups(); renderDashboard(); renderHistory(); renderTrends(); resetTest(); initFirebase();
+setSilo(practiceLibSilo("paraM1"));
+applyName(); applySiteName(); paintFinishUI(); paintPrefs(); paintProfile(); renderDrills(); renderWarmups(); renderDashboard(); renderHistory(); renderTrends(); syncTextSelect(); resetTest(); initFirebase();
 
 /* ===== Numbers drill — live finger hints =====
    Finger colours reuse the site's finger-keyboard scheme:
