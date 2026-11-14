@@ -140,6 +140,9 @@ function renderTestList(){
 }
 function startHubTest(examId,testId){
   if(examId==="hcm"){
+    /* Push 5: pin the mock timer to the exam's real length (HCM 10 min) —
+       a hub mock never inherits the last-used duration. Pills stay changeable. */
+    if(typeof setDuration==="function"){ var spH=specOf("hcm"); setDuration(spH? spH.durationMin : 10); }
     /* Push 4: hub HCM mocks are EXAM context (countdown, marks, verdicts —
        v5 mechanics untouched); the picker silo is the hub's mock list. */
     if(typeof setTestContext==="function") setTestContext("exam");
