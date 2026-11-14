@@ -374,6 +374,17 @@
       <button class="btn secondary" id="quickMock" type="button"><svg class="ic" aria-hidden="true"><use href="#i-landmark"/></svg>10-minute exam mock</button>
       <button class="btn secondary" id="quickWarm" type="button"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg>15-minute warm-up</button>
     </div>
+    <div id="numHint" style="display:none">
+      <div class="numHintBar">
+        <div class="numHintInfo" id="numHintInfo">
+          <span class="numNext"><span class="numNextLabel">Next</span><span class="numNextKey" id="numNextKey">4</span></span>
+          <span class="numFinger"><span class="dot" id="numFingerDot"></span><span id="numFingerName">Left index finger</span></span>
+          <span class="numHintMsg" id="numHintMsg" role="status"></span>
+        </div>
+        <button class="pill" id="numHintToggle" type="button" aria-pressed="true">Finger hints · On</button>
+      </div>
+      <div class="numKb" id="numKb"></div>
+    </div>
         <div id="kbSection" style="display:none;margin-top:14px">
       <h3>Finger keyboard — which finger presses which key</h3>
       <div class="legend">
@@ -933,7 +944,7 @@
     <a href="rrb-ntpc-typing-test/">RRB NTPC</a>
   </div>
   <div class="footBottom">
-    <span>© 2026 TypeSetu · v2</span>
+    <span>© 2026 TypeSetu · v3</span>
     <span>Practice tool — not affiliated with SSC, RRB or Delhi Police.</span>
   </div>
 </footer>
