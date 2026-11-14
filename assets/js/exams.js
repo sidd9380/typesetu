@@ -140,12 +140,16 @@ function renderTestList(){
 }
 function startHubTest(examId,testId){
   if(examId==="hcm"){
+    /* Push 4: hub HCM mocks are EXAM context (countdown, marks, verdicts —
+       v5 mechanics untouched); the picker silo is the hub's mock list. */
+    if(typeof setTestContext==="function") setTestContext("exam");
+    if(typeof hubMockSilo==="function" && typeof setSilo==="function") setSilo(hubMockSilo(testId));
     var it=flatTexts.find(function(x){return x.id===testId;});
     if(it && testId.indexOf("para")!==0 && testId!=="sim10"){
 
       sel.value=it.id; loadText(it.id,it.name,it.text,false); gotoPractice(); focusCapture(); return;
     }
-    selectLessonById(testId); return;
+    selectLessonById(testId,{keepCtx:true,keepSilo:true}); return;
   }
   var sp=specOf(examId); var t=testsOf(examId).find(function(x){return x.id===testId;}); if(!t) return;
   openExamTest(sp,t);
