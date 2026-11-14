@@ -119,6 +119,14 @@ var DRILLS=[
   {id:"paraMix1",name:"Paragraphs — Easy Pair · Education + Health",desc:"Both easy passages back to back in one long session.",text:PARAS.easy1+" "+PARAS.easy2},
   {id:"paraMix2",name:"Paragraphs — Medium Pair · Administration + Police",desc:"Both medium passages back to back in one long session.",text:PARAS.med1+" "+PARAS.med2},
   {id:"paraMix3",name:"Paragraphs — Hard Pair · Courts + Disaster Management",desc:"Both hard passages back to back — the longest session of all.",text:PARAS.hard1+" "+PARAS.hard2}
+ ]},
+ {part:"Numbers · Learn the Number Row", numPart:true, items:[
+  {id:"num1",name:"Numbers N1 · Index Fingers — 4 5 6 7",desc:"Your two index fingers own the middle of the number row. Slow, even reaches up from F and J.",text:"4 5 6 7 45 54 67 76 44 55 66 77 456 567 465 576 45 67 54 76 4455 6677 454 565 676 767 4567 7654 445 556 667 774 45 56 67 74 546 675 4455 7766 456 567 654 765 4554 7667 4567 7654 44 55 66 77 465 576 45 67"},
+  {id:"num2",name:"Numbers N2 · Middle Fingers — 3 8",desc:"Middle fingers reach up for 3 and 8, with the index digits of N1 mixed back in.",text:"3 8 38 83 34 43 87 78 33 88 345 876 384 483 38 83 3456 8765 338 883 348 843 385 583 36 63 68 86 334 887 3438 8383 3 8 45 67 354 786 3845 6783 3388 8833 383 838 38 83 34 87 345 876"},
+  {id:"num3",name:"Numbers N3 · Ring Fingers — 2 9",desc:"Ring fingers take 2 and 9 — the digits most typists guess at. Everything so far, mixed.",text:"2 9 29 92 23 32 98 89 22 99 234 987 293 392 29 92 298 892 27 72 96 69 223 998 2345 9876 2938 8392 249 942 24 42 79 97 229 992 283 829 2 9 38 83 239 938 2299 9922 24 79 234 987"},
+  {id:"num4",name:"Numbers N4 · Little Fingers — 1 0",desc:"Little fingers finish the row: 1 on the left, 0 on the right. The full row is now yours.",text:"1 0 10 01 12 21 09 90 11 00 123 098 102 201 10 01 19 91 100 001 110 011 1234 0987 109 901 18 81 07 70 112 009 1123 0098 101 010 12 90 1102 9901 1 0 29 92 12345 09876 1029 9201 10 01 19 91"},
+  {id:"num5",name:"Numbers N5 · Full Row — Mixed Runs",desc:"All ten digits in growing runs — twos, threes, fours, fives and sixes, in no fixed order.",text:"47 83 05 61 92 384 716 205 948 617 4029 8153 6740 2918 53046 91827 36405 720193 485162 09 38 3847 56192 704 18 6502 93741 24680 13579 86420 97531 5029 4816 7302 6194 0583 9271 34056 12987 65403 78192 20 47 8305 6192 40517 928364 071953 28461"},
+  {id:"num6",name:"Numbers N6 · Numbers in Real Text",desc:"Digits the way exam passages use them — dates, years, amounts and percentages in full lines.",text:"India became independent on 15 August 1947. The office opens at 9:30 in the morning. A total of 4,250 candidates applied for 120 posts. The train covers 385 kilometres in 6 hours. Nearly 73.5 per cent of the target was achieved in 2024. The file was dispatched on 04 November 2026. His salary is ₹18,500 per month. The committee will meet on 27 January 2027. About 1,240 students appeared in the examination. The price rose from ₹250 to ₹475 in two years. The district has 58 schools and 214 teachers. The report runs to 96 pages and 14 chapters. Rainfall this year measured 812 mm against 764 mm last year. The loan of ₹2,00,000 is repayable in 48 instalments. Only 37 out of 500 applicants were shortlisted. The meeting lasted from 11:00 a.m. to 1:45 p.m. The new bridge is 1,150 metres long and 12 metres wide. In 2025 the centre treated 9,640 patients in 11 months. The pass percentage improved from 61.4 to 68.9 per cent. Forms must be submitted before 5 p.m. on 30 June 2028."}
  ]}
 
 ];
@@ -411,6 +419,7 @@ function renderText(){
   scrollCursorIntoView(cpos);
   positionCaret(cpos);
   syncPaperScroll();
+  if(typeof updateNumHint==="function") updateNumHint();
 }
 function scrollCursorIntoView(pos){
   var kids=typeText.children, total=kids.length;
@@ -913,6 +922,7 @@ function bandLabel(n){
 }
 function finishTest(){
   if(state.finished) return; state.finished=true;
+  if(typeof updateNumHint==="function") updateNumHint();
   document.body.classList.remove("focused");
   clearInterval(state.timer);
   var sbF=document.getElementById("submitBtn"); if(sbF) sbF.style.display="none";
@@ -1318,7 +1328,7 @@ function cycleText(){
   focusCapture();
 }
 
-var DIFF={top1:"easy",top2:"easy",home1:"easy",home2:"easy",bot1:"medium",bot2:"medium",cross1:"easy",cross2:"medium",top3:"easy",home3:"easy",fin1:"medium",fin2:"easy",dbl1:"medium",shift1:"medium",awk1:"hard",end1:"medium",dbl2:"medium",shift2:"medium",fin3:"hard",awk2:"hard",abs1:"medium",abs2:"hard",ngram1:"medium",abs3:"medium",abs4:"hard",abs5:"hard",abs6:"hard",ngram2:"medium",ngram3:"medium",ngram4:"medium",common1:"easy",govt1:"medium",long1:"hard",common2:"easy",govt2:"medium",long2:"hard",vocabMix1:"medium",vocabMix2:"medium",vocabMix3:"hard",vocabMix4:"hard",punct1:"hard",space1:"medium",punct2:"hard",space2:"medium",cap1:"medium",cap2:"medium",cap3:"medium",punctMix1:"hard",punctMix2:"hard",punctMix3:"hard",sent1:"easy",sent2:"medium",sent3:"hard",sent4:"easy",sent5:"medium",sent6:"hard",sent7:"medium",sent8:"hard",sent9:"hard",sent10:"hard",paraE1:"easy",paraE2:"easy",paraM1:"medium",paraM2:"medium",paraH1:"hard",paraH2:"hard",sim10:"hard",paraMix1:"easy",paraMix2:"medium",paraMix3:"hard"};
+var DIFF={top1:"easy",top2:"easy",home1:"easy",home2:"easy",bot1:"medium",bot2:"medium",cross1:"easy",cross2:"medium",top3:"easy",home3:"easy",fin1:"medium",fin2:"easy",dbl1:"medium",shift1:"medium",awk1:"hard",end1:"medium",dbl2:"medium",shift2:"medium",fin3:"hard",awk2:"hard",abs1:"medium",abs2:"hard",ngram1:"medium",abs3:"medium",abs4:"hard",abs5:"hard",abs6:"hard",ngram2:"medium",ngram3:"medium",ngram4:"medium",common1:"easy",govt1:"medium",long1:"hard",common2:"easy",govt2:"medium",long2:"hard",vocabMix1:"medium",vocabMix2:"medium",vocabMix3:"hard",vocabMix4:"hard",punct1:"hard",space1:"medium",punct2:"hard",space2:"medium",cap1:"medium",cap2:"medium",cap3:"medium",punctMix1:"hard",punctMix2:"hard",punctMix3:"hard",sent1:"easy",sent2:"medium",sent3:"hard",sent4:"easy",sent5:"medium",sent6:"hard",sent7:"medium",sent8:"hard",sent9:"hard",sent10:"hard",paraE1:"easy",paraE2:"easy",paraM1:"medium",paraM2:"medium",paraH1:"hard",paraH2:"hard",sim10:"hard",paraMix1:"easy",paraMix2:"medium",paraMix3:"hard",num1:"easy",num2:"easy",num3:"medium",num4:"medium",num5:"hard",num6:"hard"};
 function diffLabel(d){ return d==="easy"?"Easy":d==="medium"?"Medium":"Hard"; }
 var SESSION_CATS=[
  {title:"Sentences",desc:"Level 1–3 sentence sets, from clean basics to dense official language.",ids:["sent1","sent2","sent3","sent4","sent5","sent6","sent7","sent8","sent9","sent10"]},
@@ -1361,7 +1371,7 @@ function attachDrillClicks(wrap){
 function renderDrills(){
   var htmlD="";
   DRILLS.forEach(function(sec,idx){
-    if(idx>=5) return;
+    if(idx>=5 && !sec.numPart) return;
     var h="<div class='partGroup'><h3 style='margin:18px 0 8px'>"+sec.part+" — "+sec.items.length+" lessons</h3><div class='rows'>";
     sec.items.forEach(function(it){ h+=lessonRow(it); });
     h+="</div></div>";
@@ -1890,3 +1900,97 @@ if(document.fonts && document.fonts.ready){ document.fonts.ready.then(function()
 
 state.base=PARAS.med1;
 applyName(); applySiteName(); paintFinishUI(); paintPrefs(); paintProfile(); renderDrills(); renderWarmups(); renderDashboard(); renderHistory(); renderTrends(); resetTest(); initFirebase();
+
+/* ===== Numbers drill — live finger hints =====
+   Finger colours reuse the site's finger-keyboard scheme:
+   fp = little (pink), fr = ring (orange), fm = middle (gold), fi = index (blue). */
+var NUM_FINGER={
+  "1":{cls:"fp",name:"Left little finger"},"2":{cls:"fr",name:"Left ring finger"},
+  "3":{cls:"fm",name:"Left middle finger"},"4":{cls:"fi",name:"Left index finger"},
+  "5":{cls:"fi",name:"Left index finger"},"6":{cls:"fi",name:"Right index finger"},
+  "7":{cls:"fi",name:"Right index finger"},"8":{cls:"fm",name:"Right middle finger"},
+  "9":{cls:"fr",name:"Right ring finger"},"0":{cls:"fp",name:"Right little finger"}
+};
+var NUM_LETTER_FINGER=(function(){
+  var groups=[["qaz","fp","Left little finger"],["wsx","fr","Left ring finger"],["edc","fm","Left middle finger"],["rfvtgb","fi","Left index finger"],
+              ["yhnujm","fi","Right index finger"],["ik","fm","Right middle finger"],["ol","fr","Right ring finger"],["p","fp","Right little finger"]];
+  var map={};
+  groups.forEach(function(g){ g[0].split("").forEach(function(ch){ map[ch]={cls:g[1],name:g[2]}; }); });
+  return map;
+})();
+function numFingerFor(ch){
+  if(!ch) return null;
+  if(ch===" ") return {cls:"",name:"Thumb (either)"};
+  if(NUM_FINGER[ch]) return NUM_FINGER[ch];
+  return NUM_LETTER_FINGER[ch.toLowerCase()]||null;
+}
+function numFingerDot(cls){
+  return {"fp":"rgba(219,39,119,.85)","fr":"rgba(234,88,12,.9)","fm":"rgba(202,138,4,.95)","fi":"rgba(43,69,200,.85)"}[cls]||"var(--muted)";
+}
+function isNumLesson(){ return /^num[1-6]$/.test(state.currentId||""); }
+function numHintsOn(){ return SETTINGS.numHints!==false; }
+var numStripBuilt=false;
+function buildNumStrip(){
+  var kb=document.getElementById("numKb"); if(!kb) return;
+  var h="";
+  "1234567890".split("").forEach(function(d){ h+="<div class='key "+NUM_FINGER[d].cls+"' data-nk='"+d+"'>"+d+"</div>"; });
+  h+="<div class='key space' data-nk=' '>SPACE — thumbs</div>";
+  kb.innerHTML=h; numStripBuilt=true;
+}
+function updateNumHint(){
+  var wrap=document.getElementById("numHint"); if(!wrap) return;
+  if(!isNumLesson()){ wrap.style.display="none"; return; }
+  wrap.style.display="";
+  var on=numHintsOn();
+  var tog=document.getElementById("numHintToggle");
+  if(tog){ tog.textContent="Finger hints · "+(on?"On":"Off"); tog.classList.toggle("active",on); tog.setAttribute("aria-pressed",on?"true":"false"); }
+  var kb=document.getElementById("numKb"); if(kb) kb.style.display= on? "":"none";
+  var info=document.getElementById("numHintInfo"); if(info) info.style.display= on? "":"none";
+  if(!on) return;
+  if(!numStripBuilt) buildNumStrip();
+  var pos=Math.max(0,Math.min(state.caret||0, state.typed.length));
+  var next=(pos<state.target.length)? state.target[pos] : "";
+  var chip=document.getElementById("numNextKey"), fname=document.getElementById("numFingerName"), dot=document.getElementById("numFingerDot");
+  if(state.finished||!next){
+    if(chip) chip.textContent="✓";
+    if(fname) fname.textContent= state.finished? "Lesson finished" : "Text complete";
+    if(dot) dot.style.background="var(--green)";
+  } else {
+    if(chip) chip.textContent= next===" "? "Space" : next;
+    var f=numFingerFor(next);
+    if(fname) fname.textContent= f? f.name : "Next key";
+    if(dot) dot.style.background= f? numFingerDot(f.cls) : "var(--muted)";
+  }
+  if(kb){
+    var lit=kb.querySelectorAll(".key.next");
+    for(var i=0;i<lit.length;i++) lit[i].classList.remove("next");
+    if(next && !state.finished){
+      var sel=kb.querySelector("[data-nk='"+next+"']");
+      if(sel) sel.classList.add("next");
+    }
+  }
+}
+function flashNumKey(ch,kind){
+  var kbEl=document.getElementById("numKb"); if(!kbEl||!numHintsOn()) return;
+  var sel=kbEl.querySelector("[data-nk='"+ch+"']"); if(!sel) return;
+  sel.classList.remove("wrong","hit"); void sel.offsetWidth;
+  sel.classList.add(kind);
+  setTimeout(function(){ sel.classList.remove(kind); }, kind==="wrong"? 480:200);
+}
+capture.addEventListener("keydown",function(e){
+  if(!isNumLesson()||state.finished||!numHintsOn()) return;
+  if(!e.key||e.key.length!==1) return;
+  var pos=Math.max(0,Math.min(state.caret||0, state.typed.length));
+  var exp=state.target[pos]; if(exp===undefined) return;
+  if(e.key===exp){
+    if(NUM_FINGER[e.key]||e.key===" ") flashNumKey(e.key,"hit");
+  } else {
+    if(NUM_FINGER[e.key]||e.key===" ") flashNumKey(e.key,"wrong");
+    var msg=document.getElementById("numHintMsg");
+    if(msg){
+      var f=numFingerFor(exp);
+      msg.textContent="That was "+(e.key===" "?"Space":e.key)+" — next is "+(exp===" "?"Space":exp)+(f? " ("+f.name.toLowerCase()+")":"");
+      setTimeout(function(){ msg.textContent=""; },1600);
+    }
+  }
+});

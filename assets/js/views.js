@@ -163,6 +163,14 @@ document.querySelectorAll(".kbToggleBtn").forEach(function(b){
 });
 applyKb();
 
+var numHintToggleEl=document.getElementById("numHintToggle");
+if(numHintToggleEl) numHintToggleEl.addEventListener("click",function(){
+  SETTINGS.numHints=!(typeof numHintsOn==="function"? numHintsOn() : SETTINGS.numHints!==false);
+  persistSettings();
+  if(typeof updateNumHint==="function") updateNumHint();
+  if(typeof focusCapture==="function") focusCapture();
+});
+
 function fldErr(id,msg){
   var el=document.getElementById(id); if(!el) return;
   el.textContent=msg||""; el.style.display= msg? "block":"none";
