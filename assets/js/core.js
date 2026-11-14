@@ -1824,27 +1824,61 @@ var WARMUPS=[
  {id:"wu5",name:"Set 5 · Hard Finger Gauntlet",level:"hard",desc:"Full-keyboard abstract strings, long words and awkward pairs at full stretch.",text:txtOf("abs2")+" "+txtOf("long1")+" "+txtOf("awk1")+" "+SENT.sL3},
  {id:"wu6",name:"Set 6 · Exam-Eve Shakeout",level:"hard",desc:"Capitals, punctuation, spacing traps and a real medium paragraph to finish.",text:txtOf("shift1")+" "+txtOf("punct1")+" "+txtOf("space1")+" "+PARAS.med1}
 ];
+/* Push 3 — warm-up subsets: every set carries 20 subsets. Subset 1 is the set's
+   original text above (its id IS the set id, so existing completion records
+   carry over); subsets 2..20 come from WARMUP_SUBSETS (assets/js/warmup-data.js,
+   loaded before core.js). Completion lives ONLY inside the opened set. */
+WARMUPS.forEach(function(w){
+  var list=[{id:w.id,n:1,topic:"The original full set",text:w.text}];
+  for(var i=2;i<=20;i++){
+    var sid=w.id+"-"+i, d=(typeof WARMUP_SUBSETS!=="undefined")? WARMUP_SUBSETS[sid] : null;
+    if(d&&d.text) list.push({id:sid,n:i,topic:d.topic||"",text:d.text});
+  }
+  w.subsets=list;
+});
+var warmOpenSet=null;
+function warmStartSubset(w,sub){
+  document.querySelectorAll(".dur").forEach(function(x){ x.classList.toggle("active",x.dataset.min==="15"); });
+  state.durMin=15;
+  loadText(sub.id,"Warm-Up · "+w.name+" — Subset "+sub.n,sub.text,true);
+  gotoPractice(); focusCapture();
+}
 function renderWarmups(){
   var wrap=document.getElementById("warmGrid"); if(!wrap) return;
+  var openW=warmOpenSet? WARMUPS.find(function(x){return x.id===warmOpenSet;}) : null;
+  if(openW){
+    var lv=diffLabel(openW.level);
+    var h="<div style='grid-column:1/-1'>"
+      +"<div class='controls' style='margin-bottom:12px'><button class='pill' id='warmBack' type='button'>← All sets</button><strong style='font-size:15px'>"+openW.name+"</strong> <span class='dtag d-"+openW.level+"'>"+lv+"</span><span class='small'>"+openW.subsets.length+" subsets · 15 min each</span></div>";
+    openW.subsets.forEach(function(sub){
+      var st=lessonStatus(sub.id);
+      var meta=wordCountOf(sub.text)+" words"+(st.completed? " · ✓ Completed" : " · Not completed")+(st.passed? " · ✅ 98% gate passed":"")+(st.best? " · Best "+st.best.net+" WPM · "+(+st.best.acc).toFixed(1)+"%":"")+(st.attempts? " · "+st.attempts+" attempt"+(st.attempts>1?"s":""):"");
+      var isSel=(state.currentId===sub.id);
+      h+="<div class='testRow'"+(isSel?" style='border-color:var(--primary)'":"")+"><span class='trNum'>"+sub.n+"</span><span class='trMain'><strong>Subset "+sub.n+"</strong>"+(sub.topic?"<span class='trTopic'>"+sub.topic+"</span>":"")+"<span>"+meta+"</span></span><span class='dtag d-"+openW.level+"'>"+lv+"</span><span class='trAct'><button class='btn btnStart' data-wsub='"+sub.id+"' type='button'>"+(st.completed?"Retake":"Start")+" →</button></span></div>";
+    });
+    h+="</div>";
+    wrap.innerHTML=h;
+    var bk=document.getElementById("warmBack");
+    if(bk) bk.addEventListener("click",function(){ warmOpenSet=null; renderWarmups(); });
+    wrap.querySelectorAll("[data-wsub]").forEach(function(b){
+      b.addEventListener("click",function(){
+        var sub=openW.subsets.find(function(x){return x.id===b.dataset.wsub}); if(!sub) return;
+        warmStartSubset(openW,sub);
+      });
+    });
+    return;
+  }
   var wf=document.querySelector(".wff.active"); var f=wf? wf.dataset.wdiff : "all";
   wrap.innerHTML=WARMUPS.map(function(w){
     if(f!=="all"&&w.level!==f) return "";
-    var isSel=(state.currentId===w.id);
-    var st=lessonStatus(w.id);
-    var status;
-    if(st.completed&&st.best) status="<span class='wStatus doneYes'>✓ Completed · Best "+st.best.net+" WPM · "+(+st.best.acc).toFixed(0)+"%</span>";
-    else if(st.best) status="<span class='wStatus'>Best "+st.best.net+" WPM · "+(+st.best.acc).toFixed(0)+"%</span>";
-    else status="";
-    return "<button class='drill warmCard"+(isSel?" sel":"")+(st.completed?" doneWarm":"")+"' data-wu='"+w.id+"'><span class='tag'>15-Min Warm-Up</span> <span class='dtag d-"+w.level+"'>"+diffLabel(w.level)+"</span><strong style='display:block;font-size:15px;margin-top:2px'>"+w.name+"</strong><p>"+w.desc+"</p>"+status+"<span class='warmLoad'>Load this set →</span></button>";
+    var isSel=(state.currentId===w.id)||(state.currentId&&state.currentId.indexOf(w.id+"-")===0);
+    return "<button class='drill warmCard"+(isSel?" sel":"")+"' data-wu='"+w.id+"'><span class='tag'>15-Min Warm-Up</span> <span class='dtag d-"+w.level+"'>"+diffLabel(w.level)+"</span><strong style='display:block;font-size:15px;margin-top:2px'>"+w.name+"</strong><p>"+w.desc+"</p><span class='warmLoad'>Open set →</span></button>";
   }).join("");
   wrap.querySelectorAll("[data-wu]").forEach(function(b){
     b.addEventListener("click",function(){
-      var w=WARMUPS.find(function(x){return x.id===b.dataset.wu}); if(!w) return;
-      document.querySelectorAll(".dur").forEach(function(x){ x.classList.toggle("active",x.dataset.min==="15"); });
-      state.durMin=15;
-      loadText(w.id,"Warm-Up · "+w.name,w.text,true);
-
-      gotoPractice(); focusCapture();
+      warmOpenSet=b.dataset.wu;
+      renderWarmups();
+      var panel=document.getElementById("panel-warmup"); if(panel) panel.scrollIntoView({block:"start"});
     });
   });
 }
@@ -1852,6 +1886,7 @@ document.querySelectorAll(".wff").forEach(function(b){
   b.addEventListener("click",function(){
     document.querySelectorAll(".wff").forEach(function(x){x.classList.remove("active")});
     b.classList.add("active");
+    warmOpenSet=null; /* filters apply at set level, on the outer list */
     renderWarmups();
   });
 });
