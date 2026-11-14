@@ -91,6 +91,7 @@
     <nav class="navLinks" aria-label="Main">
       <button class="navLink" type="button" data-view="home">Home</button>
       <button class="navLink" type="button" data-view="test">Typing Test</button>
+      <button class="navLink" type="button" data-view="warmup">Warm-Up</button>
       <button class="navLink" type="button" data-view="drills">Drills</button>
       <button class="navLink" type="button" data-view="practice">Practice</button>
       <button class="navLink" type="button" data-view="guide">Guide</button>
@@ -126,6 +127,7 @@
   <button class="sbLink" type="button" id="sbRevision" data-view="revision"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-repeat"/></svg></span><span class="sbLabel">Revision</span><span class="sbBadge" id="sbRevBadge" style="display:none"></span></button>
   <button class="sbLink" type="button" data-view="factcards"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-cards"/></svg></span><span class="sbLabel">Fact Cards</span><span class="fcFunTag">Fun</span></button>
   <div class="sbSec">Learn</div>
+  <button class="sbLink" type="button" data-view="warmup"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg></span><span class="sbLabel">Warm-Up</span></button>
   <button class="sbLink" type="button" data-view="drills"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg></span><span class="sbLabel">Lessons &amp; drills</span></button>
   <button class="sbLink" type="button" data-view="practice"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg></span><span class="sbLabel">Practice passages</span></button>
   <button class="sbLink" type="button" data-view="guide"><span class="sbIc"><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg></span><span class="sbLabel">Exam guide</span></button>
@@ -166,6 +168,7 @@
     <button class="mrow" type="button" data-view="revision"><span><svg class="ic" aria-hidden="true"><use href="#i-repeat"/></svg>Revision</span><span class="mval" id="drawerRevDue"></span></button>
     <button class="mrow" type="button" data-view="factcards"><span><svg class="ic" aria-hidden="true"><use href="#i-cards"/></svg>Fact Cards</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <h3 class="drawerH">Learn</h3>
+    <button class="mrow" type="button" data-view="warmup"><span><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg>Warm-Up</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <button class="mrow" type="button" data-view="drills"><span><svg class="ic" aria-hidden="true"><use href="#i-target"/></svg>Lessons &amp; drills</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <button class="mrow" type="button" data-view="practice"><span><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg>Practice passages</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
     <button class="mrow" type="button" data-view="guide"><span><svg class="ic" aria-hidden="true"><use href="#i-book"/></svg>Exam guide</span><span class="mval"><svg class="ic" aria-hidden="true"><use href="#i-chev-right"/></svg></span></button>
@@ -205,8 +208,6 @@
   <h3 class="drawerH">Preferences</h3>
   <button class="mrow" id="prefTheme" type="button"><span><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg>Theme</span><span class="mval" id="prefThemeVal">Light</span></button>
   <button class="mrow" id="prefHl" type="button"><span><svg class="ic" aria-hidden="true"><use href="#i-type"/></svg>Live error highlighting</span><span class="mval" id="prefHlVal">On</span></button>
-  <button class="mrow" id="prefFinish" type="button"><span><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg>Finish behaviour</span><span class="mval" id="prefFinishVal">Auto-submit</span></button>
-
   <h3 class="drawerH">Data &amp; backup</h3>
   <button class="mrow" id="dataExport" type="button"><span><svg class="ic" aria-hidden="true"><use href="#i-download"/></svg>Export backup</span><span class="mval">JSON</span></button>
   <button class="mrow" id="dataImport" type="button"><span><svg class="ic" aria-hidden="true"><use href="#i-upload"/></svg>Import backup</span><span class="mval">JSON</span></button>
@@ -305,7 +306,7 @@
         <label class="tbLabel" for="textSelect">Passage</label>
         <select id="textSelect"></select>
       </div>
-      <div class="tbGroup">
+      <div class="tbGroup" id="durGroup">
         <span class="tbLabel" id="durLabel">Time</span>
         <div class="seg" role="group" aria-labelledby="durLabel">
           <button class="pill dur" data-min="1" type="button">1 min</button>
@@ -320,10 +321,10 @@
         <button class="btn secondary" id="newTextBtn" type="button">New passage</button>
         <button class="btn" id="submitBtn" type="button" style="display:none">Submit</button>
         <button class="btn" id="endTestBtn" type="button" style="display:none" disabled>End test</button>
+        <span id="gearSlotCard"><button class="optGear" id="optGear" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="optPop" title="Test options"><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg>Test options</button></span>
       </div>
     </div>
-    <details class="optPanel" id="optPanel">
-      <summary><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg>Test options<span class="optHint">Paper view, highlighting, finish, keyboard, exam mode</span></summary>
+    <div class="optPop" id="optPop" hidden role="group" aria-label="Test options">
       <div class="setBar" id="setBar">
         <div class="setGroup" id="paperRow"><span class="setLabel">Paper</span>
           <button class="pill" id="paperToggle" type="button">Paper view · Off</button>
@@ -333,46 +334,32 @@
           <button class="pill" id="hlOn" type="button">On</button>
           <button class="pill" id="hlOff" type="button">Off (like the exam)</button>
         </div>
-        <div class="setGroup" id="finishRow"><span class="setLabel">When time ends</span>
-          <button class="pill" id="finishAuto" type="button">Auto-submit</button>
-          <button class="pill" id="finishManual" type="button">I’ll submit myself</button>
-        </div>
         <div class="setGroup" id="kbRow"><span class="setLabel">Keyboard</span><button class="pill kbToggleBtn" type="button">Show finger keyboard</button></div>
-        <div class="setGroup"><span class="setLabel">Exam</span>
-          <button class="pill" id="examToggle" type="button" title="Strict exam simulation for the exam picked here: its real duration, live stats hidden until the end">Real exam mode · Off</button>
-          <button class="pill exModePill active" data-exam="hcm" type="button">HCM · 10 min</button>
-          <button class="pill exModePill" data-exam="chsl" type="button">CHSL · 10 min</button>
-          <button class="pill exModePill" data-exam="cgl" type="button">CGL · 15 min</button>
-          <button class="pill exModePill" data-exam="rrb" type="button">RRB · 10 min</button>
-          <button class="pill" id="examPaperToggle" type="button" title="Paper typing: read the passage from a paper-style sheet and type in a plain box, like the real hall">Paper typing · Off</button>
-        </div>
+        <div class="setGroup" id="numHintRow" style="display:none"><span class="setLabel">Numbers</span><button class="pill" id="numHintToggle" type="button" aria-pressed="true">Finger hints · On</button></div>
       </div>
-    </details>
+    </div>
     <p class="miniStatus" id="modeHint"></p>
     <p class="miniStatus" id="sizeLine"></p>
 
     <div class="statsGrid liveStats" aria-live="off">
-      <div class="stat statTime"><div class="v" id="sTime">5:00</div><div class="l">Time left</div></div>
+      <div class="stat statTime"><div class="v" id="sTime">5:00</div><div class="l" id="sTimeLabel">Time left</div></div>
       <div class="stat"><div class="v" id="sNet">0</div><div class="l">Net WPM</div></div>
       <div class="stat" id="statAcc"><div class="v" id="sAcc">100%</div><div class="l">Accuracy</div></div>
       <div class="stat" id="statErr"><div class="v" id="sErr">0</div><div class="l">Errors</div></div>
-      <div class="stat marks"><div class="v" id="sMarks">—</div><div class="l">Marks / 25</div></div>
+      <div class="stat marks" id="statMarks"><div class="v" id="sMarks">—</div><div class="l">Marks / 25</div></div>
       <div class="stat statMinor"><div class="v" id="sGross">0</div><div class="l">Gross WPM</div></div>
       <div class="stat statMinor"><div class="v" id="sWords">0</div><div class="l">Words</div></div>
-      <div class="stat statMinor"><div class="v" id="sChars">0</div><div class="l">Characters</div></div>
+      <div class="stat statMinor" id="statChars"><div class="v" id="sChars">0</div><div class="l">Characters</div></div>
     </div>
     <div class="progress" id="progWrap"><i id="progBar"></i></div>
 
     <div id="paperSheet" style="display:none"><div class="psHead">Paper view — read from this sheet and type in the box below, just like the exam hall. The sheet scrolls as you type.</div><div class="psBody" id="paperSheetText"></div></div>
+    <div class="typeBoxWrap"><span id="gearSlotBox"></span>
     <div class="typeBox" id="typeBox" tabindex="0" role="textbox" aria-multiline="true" aria-label="Typing area. Click and type the text shown.">
       <div class="typeText mono" id="typeText"></div>
       <div id="caretEl" aria-hidden="true"></div>
       <textarea id="capture" autocomplete="off" autocapitalize="off" spellcheck="false" aria-hidden="true"></textarea>
     </div>
-    <div class="quickRow" id="quickRow">
-      <span class="qrLabel">Exam practice</span>
-      <button class="btn secondary" id="quickMock" type="button"><svg class="ic" aria-hidden="true"><use href="#i-landmark"/></svg>10-minute exam mock</button>
-      <button class="btn secondary" id="quickWarm" type="button"><svg class="ic" aria-hidden="true"><use href="#i-timer"/></svg>15-minute warm-up</button>
     </div>
     <div id="numHint" style="display:none">
       <div class="numHintBar">
@@ -381,7 +368,6 @@
           <span class="numFinger"><span class="dot" id="numFingerDot"></span><span id="numFingerName">Left index finger</span></span>
           <span class="numHintMsg" id="numHintMsg" role="status"></span>
         </div>
-        <button class="pill" id="numHintToggle" type="button" aria-pressed="true">Finger hints · On</button>
       </div>
       <div class="numKb" id="numKb"></div>
     </div>
@@ -399,13 +385,13 @@
 
     <div class="resultBox" id="resultBox">
       <h2 id="rTitle">Result</h2>
-      <p id="rVerdict"></p>
-      <div class="resultGrid big3">
+      <p id="rVerdict" class="examOnly"></p>
+      <div class="resultGrid big3 examOnly">
         <div class="ringStat"><div class="ringWrap"><svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle class="ringBg" cx="38" cy="38" r="32" stroke-width="7" fill="none"/><circle class="ringFg" id="rNetRing" cx="38" cy="38" r="32" stroke-width="7" fill="none" stroke="var(--primary)" stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06" data-pct="0"/></svg><div class="ringVal" id="rNet">0</div></div><div class="l">Net WPM</div></div>
         <div class="ringStat"><div class="ringWrap"><svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle class="ringBg" cx="38" cy="38" r="32" stroke-width="7" fill="none"/><circle class="ringFg" id="rAccRing" cx="38" cy="38" r="32" stroke-width="7" fill="none" stroke="var(--primary)" stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06" data-pct="0"/></svg><div class="ringVal" id="rAcc">0%</div></div><div class="l">Accuracy</div></div>
         <div class="ringStat"><div class="ringWrap"><svg width="76" height="76" viewBox="0 0 76 76" aria-hidden="true"><circle class="ringBg" cx="38" cy="38" r="32" stroke-width="7" fill="none"/><circle class="ringFg" id="rMarksRing" cx="38" cy="38" r="32" stroke-width="7" fill="none" stroke="var(--green)" stroke-linecap="round" stroke-dasharray="201.06" stroke-dashoffset="201.06" data-pct="0"/></svg><div class="ringVal" id="rMarks">—</div></div><div class="l">Marks / 25</div></div>
       </div>
-      <div class="resultActions">
+      <div class="resultActions examOnly">
         <button class="btn" id="againBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-rotate"/></svg>Type it again</button>
         <button class="btn secondary" id="mistakeBtn" type="button" style="display:none">Practise my mistakes</button>
         <button class="btn secondary" id="fxLaunchBtn" type="button" style="display:none">Launch drill</button>
@@ -413,17 +399,35 @@
         <button class="btn secondary" id="rcBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-printer"/></svg>Result card</button>
       </div>
       <p id="rCloud" class="rCloud"></p>
-      <div class="resultGrid">
+      <div id="pracResult" style="display:none">
+        <div class="prBadge" id="prBest" style="display:none">🏆 New personal best!</div>
+        <div class="statsGrid prGrid">
+          <div class="stat"><div class="v" id="prNet">0</div><div class="l">Net WPM</div></div>
+          <div class="stat"><div class="v" id="prAcc">0%</div><div class="l">Accuracy</div></div>
+          <div class="stat"><div class="v" id="prTime">0:00</div><div class="l">Time taken</div></div>
+          <div class="stat"><div class="v" id="prErr">0</div><div class="l">Errors</div></div>
+          <div class="stat"><div class="v" id="prWords">0</div><div class="l">Words</div></div>
+          <div class="stat"><div class="v" id="prGross">0</div><div class="l">Gross WPM</div></div>
+        </div>
+        <p class="prLine" id="prLine"></p>
+        <p class="prTarget" id="prTarget" style="display:none"></p>
+        <div class="prActions">
+          <button class="btn btnStart" id="prNextBtn" type="button">Next →</button>
+          <button class="btn secondary" id="prAgainBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-rotate"/></svg>Retake</button>
+          <button class="btn secondary" id="prBackBtn" type="button">Back to list</button>
+        </div>
+      </div>
+      <div class="resultGrid examOnly">
         <div class="stat"><div class="v" id="rGross">0</div><div class="l">Gross WPM</div></div>
         <div class="stat"><div class="v" id="rKeys">0</div><div class="l">Keystrokes</div></div>
         <div class="stat"><div class="v" id="rBs">0</div><div class="l">Backspaces</div></div>
         <div class="stat"><div class="v" id="rTimeUsed">0:00</div><div class="l">Time used</div></div>
         <div class="stat"><div class="v" id="rWordsN">0</div><div class="l">Words typed</div></div>
       </div>
-      <div id="rCalc"></div>
-      <div id="rMistakes" style="margin-top:14px"></div>
-      <div id="rCompare"></div>
-      <div class="grid2">
+      <div id="rCalc" class="examOnly"></div>
+      <div id="rMistakes" class="examOnly" style="margin-top:14px"></div>
+      <div id="rCompare" class="examOnly"></div>
+      <div class="grid2 examOnly">
         <div>
           <h3>Error breakdown</h3>
           <table><tbody id="rBreak"></tbody></table>
@@ -435,7 +439,7 @@
           <p id="rNext" class="small"></p>
         </div>
       </div>
-      <div id="rForensics"></div>
+      <div id="rForensics" class="examOnly"></div>
     </div>
     <div class="lhist" id="lessonHistory" aria-live="polite"></div>
   </div>
@@ -443,12 +447,13 @@
 
 </section>
 
-<section class="view" id="view-drills">
+<section class="view" id="view-warmup">
 <div class="navBackRow"><button class="pill navBackBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-chev-left"/></svg>Back</button></div>
 
 <section class="panel" id="panel-warmup">
   <div class="card">
-    <h2>15-Minute Warm-Up</h2>
+    <h2 class="funHead">15-Minute Warm-Up</h2>
+    <p class="small" style="margin:0 0 10px">Pure practice — pick a set, open it, and type. The clock counts up; each subset ends at 15 minutes at the latest.</p>
     <div class="controls"><strong>Sets:</strong>
       <button class="pill wff active" data-wdiff="all" type="button">All</button>
       <button class="pill wff" data-wdiff="easy" type="button">Easy</button>
@@ -459,9 +464,14 @@
   </div>
 </section>
 
+</section>
+
+<section class="view" id="view-drills">
+<div class="navBackRow"><button class="pill navBackBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-chev-left"/></svg>Back</button></div>
+
 <section class="panel" id="panel-lessons">
   <div class="card">
-    <h2>Drills</h2>
+    <h2 class="funHead">Drills</h2>
     <div class="controls"><strong>Difficulty:</strong>
       <button class="pill dff active" data-diff="all" type="button">All</button>
       <button class="pill dff" data-diff="easy" type="button">Easy</button>
@@ -478,7 +488,8 @@
 <section class="view" id="view-practice">
   <div class="navBackRow"><button class="pill navBackBtn" type="button"><svg class="ic" aria-hidden="true"><use href="#i-chev-left"/></svg>Back</button></div>
   <div class="card">
-    <h2>Custom text</h2>
+    <h2 class="funHead">Paste &amp; practise</h2>
+    <p class="small" style="margin:0 0 10px">Your own text, for unscored practice only — no marks, no verdict. For a scored test on your own passage, use <strong>Custom Tests</strong> instead.</p>
     <textarea class="customTa" id="customText" rows="5" placeholder="Paste your passage here…" aria-label="Paste your own passage"></textarea>
     <div class="controls" style="margin-top:10px">
       <strong>Duration:</strong>
@@ -494,7 +505,7 @@
 
 <section class="panel" id="panel-sessions">
   <div class="card">
-    <h2>Practice Sessions</h2>
+    <h2 class="funHead">Practice Sessions</h2>
     <div id="sessionSections"></div>
   </div>
 </section>
@@ -713,6 +724,18 @@
   <h1>Exam Patterns</h1>
   <p class="sub">One hub per exam — pattern and full test list.</p>
   <input class="searchBox" id="hubSearch" type="search" placeholder="Search exams…" aria-label="Search exams" style="margin-top:8px">
+  <div class="card" id="remLauncher" style="margin-top:14px">
+    <h2>Real Exam Mode</h2>
+    <p class="small" style="margin:0 0 10px">The strict simulation — the exam's real duration, live stats hidden until the end, scored exactly like the hall. Pick the exam, then start.</p>
+    <div class="setGroup"><span class="setLabel">Exam</span>
+      <button class="pill" id="examToggle" type="button" title="Strict exam simulation for the exam picked here: its real duration, live stats hidden until the end">Real exam mode · Off</button>
+      <button class="pill exModePill active" data-exam="hcm" type="button">HCM · 10 min</button>
+      <button class="pill exModePill" data-exam="chsl" type="button">CHSL · 10 min</button>
+      <button class="pill exModePill" data-exam="cgl" type="button">CGL · 15 min</button>
+      <button class="pill exModePill" data-exam="rrb" type="button">RRB · 10 min</button>
+      <button class="pill" id="examPaperToggle" type="button" title="Paper typing: read the passage from a paper-style sheet and type in a plain box, like the real hall">Paper typing · Off</button>
+    </div>
+  </div>
   <div class="examGrid" id="hubGrid"></div>
 </section>
 
@@ -925,6 +948,7 @@
     <div>
       <h4>Practice</h4>
       <button class="footLink" type="button" data-view="test">Typing test</button>
+      <button class="footLink" type="button" data-view="warmup">Warm-Up</button>
       <button class="footLink" type="button" data-view="drills">Lessons &amp; drills</button>
       <button class="footLink" type="button" data-view="practice">Practice passages</button>
     </div>
@@ -944,7 +968,7 @@
     <a href="rrb-ntpc-typing-test/">RRB NTPC</a>
   </div>
   <div class="footBottom">
-    <span>© 2026 TypeSetu · v5</span>
+    <span>© 2026 TypeSetu · v6</span>
     <span>Practice tool — not affiliated with SSC, RRB or Delhi Police.</span>
   </div>
 </footer>
