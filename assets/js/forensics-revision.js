@@ -16,7 +16,7 @@ function fxDistance(ctx){
     return "Your net speed <strong>"+n.toFixed(1)+" WPM</strong> sits in the "+b.label+" band ("+b.marks+" marks). <strong>"+b.nextAt+" WPM</strong> would put you in the "+b.nextMarks+"-mark band.";
   }
   if(ctx.engine==="E1"){
-    var ep=ctx.errorPct, cap=ctx.cap, s;
+    var ep=Math.min(100, Math.max(0, ctx.errorPct||0)), cap=ctx.cap, s;
     if(ep<=cap) s="Error <strong>"+ep.toFixed(1)+"%</strong> — inside the "+cap+"% "+escapeHtml(ctx.catLabel||"")+" cap, with <strong>"+(cap-ep).toFixed(1)+" points</strong> to spare.";
     else s="Error <strong>"+ep.toFixed(1)+"%</strong> — over the "+cap+"% "+escapeHtml(ctx.catLabel||"")+" cap by <strong>"+(ep-cap).toFixed(1)+" points</strong>. That gap is the thing to close.";
     if(ctx.examId==="chsl"){

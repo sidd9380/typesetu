@@ -255,7 +255,7 @@ function marksFor(net){
 }
 function fmtTime(s){ s=Math.max(0,Math.ceil(s)); return Math.floor(s/60)+":"+("0"+(s%60)).slice(-2); }
 
-var state={ target:"", typed:[], started:false, startT:0, durMin:5, timer:null, finished:false,
+var state={ target:"", typed:[], caret:0, started:false, startT:0, durMin:5, timer:null, finished:false,
   errCat:{spelling:0,capital:0,punct:0,spacing:0,other:0}, errKeys:{}, errWords:{},
   currentId:"paraM1", currentName:"Paragraph — Medium 1 · Public Administration", isDrill:false,
   examMode:false, paperView:false, bsCount:0, lastMistakes:[] };
@@ -348,7 +348,7 @@ function updateLessonHistory(){
 function resetTest(){
   clearInterval(state.timer);
   state.target=buildTarget(state.base||PARAS.med1);
-  state.typed=[]; state.started=false; state.finished=false;
+  state.typed=[]; state.caret=0; state.started=false; state.finished=false;
   state.errCat={spelling:0,capital:0,punct:0,spacing:0,other:0}; state.errKeys={}; state.errWords={};
   state.bsCount=0; state.lastMistakes=[];
   capture.value="";
@@ -391,6 +391,7 @@ function buildSpans(){
 }
 function renderText(){
   var t=state.target, pos=state.typed.length;
+  var cpos=Math.max(0,Math.min(state.caret||0, pos));
   var raw=!highlightOn();
   typeText.classList.toggle("raw", raw);
   if(typeText.children.length!==t.length) buildSpans();
@@ -407,8 +408,8 @@ function renderText(){
     else if(i===pos){ cls += " cur"; }
     if(spanCache[i]!==cls){ spanCache[i]=cls; typeText.children[i].className=cls; }
   }
-  scrollCursorIntoView(pos);
-  positionCaret(pos);
+  scrollCursorIntoView(cpos);
+  positionCaret(cpos);
   syncPaperScroll();
 }
 function scrollCursorIntoView(pos){
@@ -711,6 +712,14 @@ capture.addEventListener("input",function(){
   if(window.TEL) TEL.feed(v);
   if(!state.started && v.length>0) startTimer();
 
+  if(v.length>state.target.length){
+    var csCap=capture.selectionStart;
+    v=v.slice(0,state.target.length);
+    capture.value=v;
+    var csNew=Math.max(0,Math.min(csCap!=null?csCap:v.length, v.length));
+    try{ capture.setSelectionRange(csNew,csNew); }catch(e){}
+  }
+
   var prevLen=state.typed.length;
 
   state.errCat={spelling:0,capital:0,punct:0,spacing:0,other:0}; state.errKeys={}; state.errWords={};
@@ -728,30 +737,100 @@ capture.addEventListener("input",function(){
   var dfl=displayFlagsHcm(state.target, v.slice(0,state.typed.length));
   for(var di=0;di<state.typed.length;di++){ state.typed[di].ok=!!dfl[di]; }
 
+  var selNow=capture.selectionStart;
+  state.caret=Math.max(0,Math.min(selNow!=null?selNow:state.typed.length, state.typed.length));
+
   renderText(); updateStats(state.started?(Date.now()-state.startT)/1000:0);
 
   requestAnimationFrame(function(){
     if(window.scrollY!==wy||window.scrollX!==wx) window.scrollTo(wx,wy);
 
-    scrollCursorIntoView(state.typed.length);
+    scrollCursorIntoView(state.caret);
     pendingWinY=null; pendingWinX=null;
   });
+  var mhEl=document.getElementById("modeHint");
   if(state.typed.length>=state.target.length){
-    if(state.examMode || autoSubmitOn()){
-      finishTest();
-    } else {
 
-      document.getElementById("modeHint").textContent="Text complete — timer still running. Press Submit when ready.";
-    }
+    if(mhEl) mhEl.textContent= state.examMode
+      ? "Text complete — timer still running. You can still correct anything; press End Test when ready."
+      : "Text complete — timer still running. You can still correct anything; press Submit when ready.";
+  } else if(mhEl && mhEl.textContent.indexOf("Text complete")===0){
+    mhEl.textContent= state.examMode? "Real exam mode · "+state.currentName+" · "+state.durMin+" min · stats hidden until the end" : "";
   }
   if(typeof paintSubmitBtn==="function") paintSubmitBtn();
 });
+function setHcmCaret(c){
+  c=Math.max(0,Math.min(c, state.typed.length));
+  state.caret=c;
+  try{ capture.setSelectionRange(c,c); }catch(e){}
+  renderText();
+}
+function syncHcmCaret(){
+  if(state.finished) return;
+  var cs=capture.selectionStart; if(cs==null) return;
+  cs=Math.max(0,Math.min(cs, state.typed.length));
+  if(cs!==state.caret){ state.caret=cs; renderText(); }
+}
+function hcmLineCaret(dir){
+  var kids=typeText.children, total=kids.length;
+  if(!total) return state.caret;
+  var c=Math.max(0,Math.min(state.caret||0, state.typed.length));
+  var anchorIdx=Math.min(c, total-1);
+  var anchor=kids[anchorIdx];
+  var aTop=anchor.offsetTop;
+  var aLeft= c<total? anchor.offsetLeft : anchor.offsetLeft+anchor.offsetWidth;
+  var rowTops=[];
+  for(var i=0;i<total;i++){ if(rowTops.indexOf(kids[i].offsetTop)<0) rowTops.push(kids[i].offsetTop); }
+  rowTops.sort(function(a,b){ return a-b; });
+  if(dir==="home"||dir==="end"){
+    var first=-1, last=-1;
+    for(var j=0;j<total;j++){ if(kids[j].offsetTop===aTop){ if(first<0) first=j; last=j; } }
+    if(first<0) return c;
+    return dir==="home"? Math.min(first, state.typed.length) : Math.min(last+1, state.typed.length);
+  }
+  var targetTop=null, ri;
+  if(dir==="up"){ for(ri=rowTops.length-1;ri>=0;ri--){ if(rowTops[ri]<aTop){ targetTop=rowTops[ri]; break; } } }
+  else { for(ri=0;ri<rowTops.length;ri++){ if(rowTops[ri]>aTop){ targetTop=rowTops[ri]; break; } } }
+  if(targetTop==null) return c;
+  var best=-1, bestD=Infinity;
+  for(var k=0;k<total;k++){
+    if(kids[k].offsetTop!==targetTop) continue;
+    var d=Math.abs(kids[k].offsetLeft-aLeft);
+    if(d<bestD){ bestD=d; best=k; }
+  }
+  if(best<0) return c;
+  var lastSpan=kids[best];
+  var nc= (aLeft>lastSpan.offsetLeft+lastSpan.offsetWidth)? best+1 : best;
+  return Math.max(0,Math.min(nc, state.typed.length));
+}
 capture.addEventListener("keydown",function(e){
   pendingWinY=window.scrollY; pendingWinX=window.scrollX;
 
   if(e.key==="Backspace" && !state.finished) state.bsCount++;
+  if(state.finished) return;
+  if(e.key==="ArrowUp"||e.key==="ArrowDown"||e.key==="Home"||e.key==="End"){
+    e.preventDefault();
+    setHcmCaret(hcmLineCaret(e.key==="ArrowUp"?"up":e.key==="ArrowDown"?"down":e.key==="Home"?"home":"end"));
+  }
 });
-typeBox.addEventListener("click",function(){ focusCapture(); typeBox.classList.add("focused"); });
+capture.addEventListener("keyup",function(e){
+  if(e.key==="ArrowLeft"||e.key==="ArrowRight") syncHcmCaret();
+});
+capture.addEventListener("select",function(){ syncHcmCaret(); });
+typeBox.addEventListener("click",function(e){
+  focusCapture(); typeBox.classList.add("focused");
+  if(state.finished) return;
+  var span=(e.target&&e.target.classList&&e.target.classList.contains("ch"))? e.target : null;
+  if(span){
+    var idx=Array.prototype.indexOf.call(typeText.children,span);
+    if(idx>=0){
+      var r=span.getBoundingClientRect();
+      setHcmCaret(idx + ((e.clientX > r.left + r.width/2)? 1:0));
+    }
+  } else {
+    setHcmCaret(state.typed.length);
+  }
+});
 typeBox.addEventListener("keydown",function(e){
 
   if(e.target===capture) return;
@@ -1043,13 +1122,13 @@ function setExamMode(on){
   var pc=document.getElementById("practiceCard"), btn=document.getElementById("examToggle"), eb=document.getElementById("endTestBtn");
   if(state.examMode){
     if(!wasExam) preExamState={durMin:state.durMin,currentId:state.currentId,currentName:state.currentName};
-    if(state.paperView) setPaperView(false);
     setDuration(10);
     ["textSelect","newTextBtn","restartBtn"].forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=true; });
     document.querySelectorAll(".dur").forEach(function(x){ x.disabled=true; });
     if(eb){ eb.style.display=""; eb.disabled=true; }
     if(btn){ btn.textContent="Real exam mode · On"; btn.classList.add("active"); }
     resetTest();
+    setPaperView(!!SETTINGS.examPaper);
     focusCapture();
   } else {
     ["textSelect","newTextBtn","restartBtn"].forEach(function(id){ var el=document.getElementById(id); if(el) el.disabled=false; });
@@ -1063,11 +1142,60 @@ function setExamMode(on){
     syncTextSelect();
     preExamState=null;
     resetTest();
+    if(typeof paintExamModeUI==="function") paintExamModeUI();
     focusCapture();
   }
 }
+function examSelCurrent(){
+  var s=SETTINGS.examSel||"hcm";
+  return (s==="chsl"||s==="cgl"||s==="rrb")? s : "hcm";
+}
+function paintExamModeUI(){
+  var sel=examSelCurrent();
+  document.querySelectorAll(".exModePill").forEach(function(b){ b.classList.toggle("active", b.dataset.exam===sel); });
+  var pt=document.getElementById("examPaperToggle");
+  if(pt){
+    var paperOn=!!SETTINGS.examPaper;
+    pt.textContent="Paper typing · "+(paperOn?"On":"Off");
+    pt.classList.toggle("active",paperOn);
+    pt.disabled= sel!=="hcm";
+    pt.title= sel==="hcm"
+      ? "Paper typing: read the passage from a paper-style sheet and type in a plain box, like the real hall"
+      : "This exam's own screen already uses paper-style typing — passage panel above, plain typing box below";
+  }
+  var tg=document.getElementById("examToggle");
+  if(tg && !state.examMode) tg.textContent= sel==="hcm"? "Real exam mode · Off" : "Start real exam mode";
+}
+document.querySelectorAll(".exModePill").forEach(function(b){
+  b.addEventListener("click",function(){
+    SETTINGS.examSel=b.dataset.exam; persistSettings();
+    if(state.examMode && b.dataset.exam!=="hcm") setExamMode(false);
+    paintExamModeUI();
+    focusCapture();
+  });
+});
+var examPaperToggleEl=document.getElementById("examPaperToggle");
+if(examPaperToggleEl) examPaperToggleEl.addEventListener("click",function(){
+  SETTINGS.examPaper=!SETTINGS.examPaper; persistSettings();
+  if(state.examMode && examSelCurrent()==="hcm") setPaperView(!!SETTINGS.examPaper);
+  paintExamModeUI();
+  focusCapture();
+});
 var examToggleEl=document.getElementById("examToggle");
-if(examToggleEl) examToggleEl.addEventListener("click",function(){ setExamMode(!state.examMode); });
+if(examToggleEl) examToggleEl.addEventListener("click",function(){
+  var sel=examSelCurrent();
+  if(sel!=="hcm"){
+
+    if(typeof specOf==="function" && typeof testsOf==="function" && typeof openExamTest==="function"){
+      var spX=specOf(sel), listX=testsOf(sel);
+      if(spX && listX.length) openExamTest(spX, listX[0]);
+    }
+    return;
+  }
+  setExamMode(!state.examMode);
+  paintExamModeUI();
+});
+paintExamModeUI();
 var endTestEl=document.getElementById("endTestBtn");
 if(endTestEl) endTestEl.addEventListener("click",function(){ if(state.started && !state.finished) finishTest(); });
 
@@ -1081,6 +1209,7 @@ function setPaperView(on){
   var sh=document.getElementById("paperSheet"); if(sh) sh.style.display=state.paperView?"block":"none";
   var tg=document.getElementById("paperToggle");
   if(tg){ tg.textContent="Paper view · "+(state.paperView?"On":"Off"); tg.classList.toggle("active",state.paperView); }
+  if(state.examMode){ SETTINGS.examPaper=!!on; persistSettings(); if(typeof paintExamModeUI==="function") paintExamModeUI(); }
   if(typeof applyHighlightUI==="function") applyHighlightUI();
   renderText();
   if(state.paperView){
@@ -1140,7 +1269,7 @@ function paintSubmitBtn(){
   var show= state.started && !state.finished && !state.examMode;
   sb.style.display= show? "":"none";
   if(show){
-    var ready= state.target.length>0 && state.typed.length>=state.target.length && !autoSubmitOn();
+    var ready= state.target.length>0 && state.typed.length>=state.target.length;
     sb.textContent= ready? "✓ Submit result" : "Submit";
     sb.classList.toggle("big", ready);
   }

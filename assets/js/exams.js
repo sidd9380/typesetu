@@ -14,6 +14,7 @@ var EXAM_SPECS=[
 ];
 function specOf(id){ return EXAM_SPECS.find(function(x){return x.id===id;}); }
 function fmtNum(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,","); }
+function dispErrPct(x){ return Math.min(100, Math.max(0, +x||0)); }
 
 function flowText(t){ return (t||"").replace(/\s+/g," "); }
 function batchTests(examId){
@@ -86,7 +87,7 @@ function renderHub(){
     +"<span class='psItem'><span class='psL'>Evaluation</span><span class='psV'>"+sp.evaluation+"</span></span></div>";
   h+="<p class='small' style='margin:0 0 14px'>Pattern last checked: 9 Nov 2026</p>";
   if(sp.id==="hcm"){
-    h+="<div class='card'><h2>The HCM course</h2><div style='display:flex;gap:8px;flex-wrap:wrap'><button class='btn' type='button' data-view='test'>⌨️ Typing Test (Screen / Paper chooser)</button><button class='btn secondary' type='button' data-view='drills'>🎯 Lessons &amp; Drills</button><button class='btn secondary' type='button' data-view='practice'>📄 Themed Practice</button><button class='btn secondary' type='button' data-view='mock'>🏛 Exam Mock</button></div></div>";
+    h+="<div class='card'><h2>The HCM course</h2><div style='display:flex;gap:8px;flex-wrap:wrap'><button class='btn' type='button' data-view='test'>⌨️ Typing Test (Screen / Paper chooser)</button><button class='btn secondary' type='button' data-view='drills'>🎯 Lessons &amp; Drills</button><button class='btn secondary' type='button' data-view='practice'>📄 Themed Practice</button><button class='btn secondary' type='button' data-view='hubs'>🏛 Exam Patterns</button></div></div>";
   }
   h+="<div class='card'><h2>Tests</h2>"
     +"<div class='controls'><input class='searchBox' id='tlSearch' type='search' placeholder='Search by name or number…' style='flex:1 1 200px' value='"+escapeHtml(hubState.q)+"'>"
@@ -125,8 +126,8 @@ function renderTestList(){
     if(q && (t.name.toLowerCase().indexOf(q)<0 && String(t.num).indexOf(q)<0 && (t.topic||"").toLowerCase().indexOf(q)<0)) return;
     var wc=wordCountOf(t.text);
     var act= att
-      ? "<button class='btn secondary trResult' data-tid='"+t.id+"' type='button'>Result</button><button class='btn trStart' data-tid='"+t.id+"' type='button'>Retake</button>"
-      : "<button class='btn trStart' data-tid='"+t.id+"' type='button'>Start Test →</button>";
+      ? "<button class='btn secondary trResult' data-tid='"+t.id+"' type='button'>Result</button><button class='btn btnStart trStart' data-tid='"+t.id+"' type='button'>Retake</button>"
+      : "<button class='btn btnStart trStart' data-tid='"+t.id+"' type='button'>Start Test →</button>";
     rowsHtml+="<div class='testRow'><span class='trNum'>"+t.num+"</span><span class='trMain'><strong>"+escapeHtml(t.name)+"</strong>"+(t.topic?"<span class='trTopic'>"+escapeHtml(t.topic)+"</span>":"")+"<span>"+wc+" words · "+fmtNum(t.text.length)+" keystrokes"+(att?" · ✓ Attempted":"")+"</span></span><span class='dtag d-"+t.diff+"'>"+(t.diff==="easy"?"Easy":t.diff==="medium"?"Moderate":"Hard")+"</span><span class='trAct'>"+act+"</span></div>";
   });
   wrap.innerHTML= rowsHtml||"<p class='small'>No tests match these filters.</p>";
@@ -204,7 +205,7 @@ function scoreWords(expText,gotText,opts){
   return {full:full,half:half,wrong:wrong,skipped:skipped,extra:extra,detail:detail,wordsTyped:G.length,expWords:E.length,consumedE:consumedE,completion: E.length? Math.min(100,consumedE/E.length*100):0,cats:cats,eStat:eStat,gStat:gStat};
 }
 
-var EX={spec:null,test:null,category:null,started:false,startT:0,timer:null,finished:false,fontPx:19,sound:false,audio:null,cycles:0};
+var EX={spec:null,test:null,category:null,started:false,startT:0,timer:null,finished:false,fontPx:19,sound:false,audio:null,cycles:0,caret:0};
 function exFullTarget(){
   var base=EX.test.text;
   if(EX.spec.id!=="rrb") return base;
@@ -214,7 +215,7 @@ function exFullTarget(){
   return out;
 }
 function openExamTest(sp,t){
-  EX.spec=sp; EX.test=t; EX.category= sp.categories? sp.categories[0].id : ""; EX.started=false; EX.finished=false; EX.cycles=0;
+  EX.spec=sp; EX.test=t; EX.category= sp.categories? sp.categories[0].id : ""; EX.started=false; EX.finished=false; EX.cycles=0; EX.caret=0;
   clearInterval(EX.timer);
   if(window.TEL) TEL.setTarget(null,"typed");
   document.getElementById("exTitle").textContent=sp.name+" — "+t.name;
@@ -245,12 +246,49 @@ function applyExFont(){
   ["exPassage","exTyped"].forEach(function(id){ var el=document.getElementById(id); if(el){ el.style.fontSize=EX.fontPx+"px"; el.style.fontFamily=fam; } });
 }
 function exFocus(){ var c=document.getElementById("exCapture"); try{ c.focus({preventScroll:true}); }catch(e){ c.focus(); } }
+function renderExTyped(){
+  var cap=document.getElementById("exCapture"), disp=document.getElementById("exTyped");
+  if(!cap||!disp) return;
+  var v=cap.value||"";
+  if(!v){ disp.innerHTML="<span class='ph'>Start typing…</span>"; return; }
+  if(EX.spec && EX.spec.backspace){
+    var c=Math.max(0,Math.min(EX.caret||0, v.length));
+    disp.innerHTML=escapeHtml(v.slice(0,c))+"<span class='exCaret' aria-hidden='true'></span>"+escapeHtml(v.slice(c));
+  } else {
+    disp.textContent=v;
+  }
+}
+function exCaretFromPoint(x,y){
+  var disp=document.getElementById("exTyped");
+  if(!disp || !document.caretRangeFromPoint) return null;
+  var r=document.caretRangeFromPoint(x,y);
+  if(!r || !disp.contains(r.startContainer)) return null;
+  var idx=0, node=r.startContainer;
+  if(node===disp){
+    for(var i=0;i<r.startOffset && i<disp.childNodes.length;i++) idx+=(disp.childNodes[i].textContent||"").length;
+    return idx;
+  }
+  var n=disp.firstChild;
+  while(n && n!==node){ idx+=(n.textContent||"").length; n=n.nextSibling; }
+  if(!n) return null;
+  return idx + r.startOffset;
+}
 document.getElementById("exStartBtn").addEventListener("click",function(){
   document.getElementById("exPrePanel").style.display="none";
   document.getElementById("exStage").style.display="block";
   exFocus();
 });
-document.getElementById("exTypedWrap").addEventListener("click",function(){ exFocus(); });
+document.getElementById("exTypedWrap").addEventListener("click",function(e){
+  exFocus();
+  if(!EX.spec || !EX.spec.backspace || EX.finished) return;
+  var len=(exCaptureEl.value||"").length;
+  var idx=exCaretFromPoint(e.clientX,e.clientY);
+  if(idx==null) idx=len;
+  idx=Math.max(0,Math.min(idx,len));
+  EX.caret=idx;
+  try{ exCaptureEl.setSelectionRange(idx,idx); }catch(err){}
+  renderExTyped();
+});
 document.getElementById("exBack").addEventListener("click",function(){
   if(EX.started&&!EX.finished){ askConfirm("Leave this test?","Your attempt will be cancelled and nothing will be saved.",function(){ clearInterval(EX.timer); openHub(EX.spec.id); }); }
   else openHub(EX.spec.id);
@@ -291,15 +329,22 @@ exCaptureEl.addEventListener("keydown",function(e){
   }
 });
 exCaptureEl.addEventListener("click",function(){ if(EX.spec&&!EX.spec.backspace){ var c=exCaptureEl; try{ c.setSelectionRange(c.value.length,c.value.length); }catch(e){} } });
+exCaptureEl.addEventListener("keyup",function(e){
+  if(!EX.spec || !EX.spec.backspace || EX.finished) return;
+  if(e.key==="ArrowLeft"||e.key==="ArrowRight"||e.key==="ArrowUp"||e.key==="ArrowDown"||e.key==="Home"||e.key==="End"){
+    var cs=exCaptureEl.selectionStart;
+    if(cs!=null){ EX.caret=cs; renderExTyped(); }
+  }
+});
 exCaptureEl.addEventListener("input",function(){
   if(EX.finished) return;
   var v=exCaptureEl.value;
   if(window.TEL) TEL.feed(v);
   if(!EX.started&&v.length>0) startExTimer();
   exBeep();
-  var disp=document.getElementById("exTyped");
-  disp.textContent=v||"";
-  if(!v) disp.innerHTML="<span class='ph'>Start typing…</span>";
+  var csE=exCaptureEl.selectionStart;
+  EX.caret= csE!=null? csE : v.length;
+  renderExTyped();
   document.getElementById("exWords").textContent=wordCountOf(v);
   document.getElementById("exKeys").textContent=v.length;
   var pas=document.getElementById("exPassage");
@@ -347,8 +392,8 @@ function finishExamTest(){
 
     var netInd=gross;
     var qual= errPct<=cat.cap;
-    var reason= qual? "Error "+errPct.toFixed(1)+"% is within the "+cat.cap+"% "+cat.label+" limit"
-      : "Error "+errPct.toFixed(1)+"% exceeds the "+cat.cap+"% "+cat.label+" limit";
+    var reason= qual? "Error "+dispErrPct(errPct).toFixed(1)+"% is within the "+cat.cap+"% "+cat.label+" limit"
+      : "Error "+dispErrPct(errPct).toFixed(1)+"% exceeds the "+cat.cap+"% "+cat.label+" limit";
     var acc= W5? Math.max(0,(W5-weighted)/W5*100):100;
     entry=mkEntry(sp,t,{gross:Math.round(gross),net:Math.round(netInd),acc:+acc.toFixed(1),errs:Math.round(weighted),errorPct:+errPct.toFixed(1),verdict:(qual?"Qualified":"Not qualified")+" — "+reason});
     result={sp:sp,t:t,sc:sc,qual:qual,reason:reason,gross:gross,netInd:netInd,errPct:errPct,acc:acc,el:el,mins:mins,typedText:typedText,target:target,cat:cat,words5:W5};
@@ -414,14 +459,14 @@ function renderExamResult(r){
   if(sp.id==="cgl") h+=cglDualTableHtml(r);
   h+="<div class='card'><h2>Performance Summary</h2><div class='statsGrid'>"
     +(sp.engine==="E1"
-      ? ringTileHtml(r.errPct.toFixed(1)+"%","Error %",Math.min(100,r.errPct), r.qual? "var(--green)":"var(--red)")
+      ? ringTileHtml(dispErrPct(r.errPct).toFixed(1)+"%","Error %",Math.min(100,r.errPct), r.qual? "var(--green)":"var(--red)")
         +ringTileHtml(String(Math.round(r.gross)),"Gross WPM",Math.min(100,r.gross/2),"var(--primary)")
         +ringTileHtml(String(Math.round(r.netInd)),"Net WPM",Math.min(100,r.netInd/2),"var(--primary)")
         +ringTileHtml(r.acc.toFixed(1)+"%","Accuracy",r.acc,"var(--primary)")
       : ringTileHtml(r.net.toFixed(1),"Net WPM",Math.min(100,r.net/2),"var(--primary)")
         +ringTileHtml(String(Math.round(r.gross)),"Gross WPM",Math.min(100,r.gross/2),"var(--primary)")
         +ringTileHtml(r.acc.toFixed(1)+"%","Accuracy",r.acc,"var(--primary)")
-        +ringTileHtml(r.errPct.toFixed(1)+"%","Error %",Math.min(100,r.errPct), r.qual? "var(--green)":"var(--red)"))
+        +ringTileHtml(dispErrPct(r.errPct).toFixed(1)+"%","Error %",Math.min(100,r.errPct), r.qual? "var(--green)":"var(--red)"))
     +"<div class='stat'><div class='v'>"+sc.full+"</div><div class='l'>Full mistakes</div></div>"
     +"<div class='stat'><div class='v'>"+sc.half+"</div><div class='l'>Half mistakes</div></div>"
     +"<div class='stat'><div class='v'>"+r.words5+"</div><div class='l'>Words typed</div></div>"
@@ -437,7 +482,7 @@ function renderExamResult(r){
   if(sp.engine==="E1"){
     h+="<li>Full mistakes: <strong>"+sc.full+"</strong> · Half mistakes: <strong>"+sc.half+"</strong> (weighted "+wtd.toFixed(1)+").</li>"
       +"<li>Words = keystrokes typed ÷ 5 = "+fmtNum(r.typedText.length)+" ÷ 5 = <strong>"+r.words5+"</strong>.</li>"
-      +"<li>Error % = (Full + 0.5 × Half) ÷ words × 100 = ("+sc.full+" + "+(0.5*sc.half).toFixed(1)+") ÷ "+r.words5+" × 100 = <strong>"+r.errPct.toFixed(2)+"%</strong> (shown as "+r.errPct.toFixed(1)+"% in the tiles above).</li>"
+      +"<li>Error % = (Full + 0.5 × Half) ÷ words × 100 = ("+sc.full+" + "+(0.5*sc.half).toFixed(1)+") ÷ "+r.words5+" × 100 = <strong>"+dispErrPct(r.errPct).toFixed(2)+"%</strong>"+(r.errPct>100? " — the raw figure is "+r.errPct.toFixed(1)+"%, shown capped at 100%, as the exam portal shows it." : " (shown as "+dispErrPct(r.errPct).toFixed(1)+"% in the tiles above).")+"</li>"
       +"<li>Net WPM = Gross WPM = <strong>"+r.gross.toFixed(2)+" WPM</strong> — SSC verdicts are decided by error %; mistakes do not deduct from speed in this pattern.</li>"
       +"<li>Your category cap ("+r.cat.label+"): <strong>"+r.cat.cap+"%</strong>.</li>";
   } else {
@@ -482,7 +527,7 @@ function renderStoredResult(en){
   h+="<h1 style='font-size:26px;margin-top:12px'>"+sp.name+" — "+escapeHtml(t.name)+"</h1>";
   h+="<p><span class='statusChip "+(qual?"q":"nq")+"'>"+(qual?"✓ Qualified":"✗ "+escapeHtml((en.verdict||"Result").split(" — ")[0]))+"</span></p><p class='sub'>"+escapeHtml(en.verdict||"")+"</p>";
   h+="<div class='card'><h2>Performance Summary</h2><div class='statsGrid'>"
-    +"<div class='stat'><div class='v'>"+(en.errorPct!=null? (+en.errorPct).toFixed(1)+"%":"—")+"</div><div class='l'>Error %</div></div>"
+    +"<div class='stat'><div class='v'>"+(en.errorPct!=null? dispErrPct(en.errorPct).toFixed(1)+"%":"—")+"</div><div class='l'>Error %</div></div>"
     +"<div class='stat'><div class='v'>"+(en.gross||0)+"</div><div class='l'>Gross WPM</div></div>"
     +"<div class='stat'><div class='v'>"+(en.net||0)+"</div><div class='l'>Net WPM"+(sp.engine==="E1"?" (indicative)":"")+"</div></div>"
     +"<div class='stat'><div class='v'>"+(+en.acc||0).toFixed(1)+"%</div><div class='l'>Accuracy</div></div>"

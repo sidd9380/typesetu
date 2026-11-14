@@ -1,6 +1,6 @@
-var VIEWS=["home","test","drills","practice","mock","guide","progress","login","signup","hubs","hub","examtest","examresult","soon","customtests","revision","factcards"];
+var VIEWS=["home","test","drills","practice","guide","progress","login","signup","hubs","hub","examtest","examresult","soon","customtests","revision","factcards"];
 var lastView="home", returnView="home";
-var VIEW_TITLES={home:"Home",test:"Typing test",drills:"Lessons & drills",practice:"Practice passages",mock:"Exam mock",guide:"Exam guide",progress:"Dashboard",login:"Log in",signup:"Create account",hubs:"Exam patterns",hub:"Exam patterns",examtest:"Exam test",examresult:"Result",soon:"Coming soon",customtests:"Custom tests",revision:"Revision",factcards:"Fact Cards"};
+var VIEW_TITLES={home:"Home",test:"Typing test",drills:"Lessons & drills",practice:"Practice passages",guide:"Exam guide",progress:"Dashboard",login:"Log in",signup:"Create account",hubs:"Exam patterns",hub:"Exam patterns",examtest:"Exam test",examresult:"Result",soon:"Coming soon",customtests:"Custom tests",revision:"Revision",factcards:"Fact Cards"};
 function showView(name,scrollTarget){
   if(VIEWS.indexOf(name)<0) name="home";
   if(name!=="login"&&name!=="signup"){ lastView=name; }
@@ -101,36 +101,6 @@ if(fsExitEl) fsExitEl.addEventListener("click",function(){
 
   if(state.examMode) setExamMode(false);
   document.body.classList.remove("focused");
-});
-
-var mockExamBtnEl=document.getElementById("mockExamBtn");
-if(mockExamBtnEl) mockExamBtnEl.addEventListener("click",function(){ showView("test"); setExamMode(true); });
-var mockSimBtnEl=document.getElementById("mockSimBtn");
-if(mockSimBtnEl) mockSimBtnEl.addEventListener("click",function(){
-  if(state.examMode) setExamMode(false);
-  if(state.paperView) setPaperView(false);
-  setDuration(10); selectLessonById("sim10");
-});
-
-var mdurSel=10;
-document.querySelectorAll(".mdur").forEach(function(b){
-  b.addEventListener("click",function(){
-    document.querySelectorAll(".mdur").forEach(function(x){ x.classList.remove("active"); });
-    b.classList.add("active"); mdurSel=+b.dataset.min;
-  });
-});
-var startCustomMockEl=document.getElementById("startCustomMock");
-if(startCustomMockEl) startCustomMockEl.addEventListener("click",function(){
-  var ta=document.getElementById("customMockText"), msg=document.getElementById("customMockMsg");
-  var text=(ta? ta.value:"").replace(/\s+/g," ").trim();
-  if(text.length<20){ if(msg){ msg.textContent="Paste a paragraph first — at least a sentence or two (20+ characters) — then start your mock."; msg.style.color="var(--red)"; } return; }
-  if(state.examMode) setExamMode(false);
-  setDuration(mdurSel);
-  loadText("customMock","Custom Mock",text,false);
-  if(msg){ msg.textContent=""; }
-  showView("test");
-  setPaperView(true);
-  focusCapture();
 });
 
 var ctExam="hcm";
