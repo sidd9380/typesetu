@@ -539,10 +539,7 @@ textarea.customTa:focus{outline:none;border-color:var(--primary);box-shadow:var(
 .setBar .btn{padding:6px 13px;font-size:13px}
 .miniStatus{font-size:12.5px;color:var(--muted);margin:0 0 4px}
 .miniStatus:empty{display:none}
-.warmCard .wStatus{display:block;font-size:12.5px;font-weight:500;color:var(--muted);margin-top:6px}
-.warmCard .wStatus.doneYes{color:var(--green)}
 .warmCard .warmLoad{display:block;font-weight:600;color:var(--primaryText);font-size:13px;margin-top:6px}
-.warmCard.doneWarm{border-color:var(--primary)}
 
 /* Result forensics & revision */
 .sbBadge{background:var(--primary);color:#fff;border-radius:999px;font-size:11px;font-weight:600;padding:1px 8px;margin-left:auto;line-height:1.5}
